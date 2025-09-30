@@ -1,20 +1,34 @@
+import { Redis } from '@upstash/redis';
 import { createClient } from 'redis';
 
 let redis: any = null;
 
 export async function getRedisClient() {
   if (redis) {
+    console.log('♻️  Reusing existing Redis connection');
     return redis;
   }
 
   try {
-    // For local development, try to connect to local Redis
-    // For production, use REDIS_URL environment variable
     const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+    console.log(`🔗 Connecting to Redis: ${redisUrl.substring(0, 30)}...`);
 
-    redis = createClient({
-      url: redisUrl,
-    });
+    // Use Upstash Redis for remote connections
+    if (redisUrl.includes('upstash.io')) {
+      const url = process.env.UPSTASH_REDIS_REST_URL;
+      const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+      if (!url || !token) {
+        throw new Error('UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN required for Upstash');
+      }
+
+      redis = new Redis({ url, token });
+      console.log('✅ Redis connected successfully (Upstash)');
+      return redis;
+    }
+
+    // Use standard Redis client for local connections
+    redis = createClient({ url: redisUrl });
 
     redis.on('error', (err: any) => {
       console.error('Redis Client Error:', err);
@@ -49,7 +63,16 @@ export async function getRedisClient() {
 
 export async function disconnectRedis() {
   if (redis) {
-    await redis.disconnect();
+    try {
+      if (redis.disconnect) await redis.disconnect();
+      else if (redis.quit) await redis.quit();
+    } catch (e) {
+      // Ignore disconnect errors
+    }
     redis = null;
   }
+}
+
+export function resetRedisClient() {
+  redis = null;
 }

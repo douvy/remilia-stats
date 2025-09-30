@@ -37,8 +37,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const allUsers = JSON.parse(leaderboardData);
-    const meta = metaData ? JSON.parse(metaData) : {};
+    // Upstash REST returns already parsed data, standard Redis returns string
+    const allUsers = typeof leaderboardData === 'string' ? JSON.parse(leaderboardData) : leaderboardData;
+    const meta = metaData ? (typeof metaData === 'string' ? JSON.parse(metaData) : metaData) : {};
 
     // Filter by search query if provided
     let filteredUsers = allUsers;

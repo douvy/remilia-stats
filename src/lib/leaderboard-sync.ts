@@ -203,7 +203,10 @@ export default async function computeBeetlesLeaderboard(): Promise<LeaderboardUs
     }));
 
     // Store in Redis
-    await redis.setEx('beetles-leaderboard', 86400, JSON.stringify(sortedUsers));
+    const payload = JSON.stringify(sortedUsers);
+    console.log(`📦 Storing ${sortedUsers.length} users (${(payload.length / 1024 / 1024).toFixed(2)}MB)`);
+    const result = await redis.set('beetles-leaderboard', payload, { ex: 86400 });
+    console.log('✅ Redis SET result:', result);
 
     // Calculate and store metadata
     const totalPokes = sortedUsers.reduce((sum, user) => sum + user.pokes, 0);
@@ -224,7 +227,7 @@ export default async function computeBeetlesLeaderboard(): Promise<LeaderboardUs
       }
     };
 
-    await redis.setEx('beetles-leaderboard-meta', 86400, JSON.stringify(metadata));
+    await redis.set('beetles-leaderboard-meta', JSON.stringify(metadata), { ex: 86400 });
 
     // Final logging
     const duration = (Date.now() - metrics.startTime) / 1000;
