@@ -4,9 +4,17 @@ import "@awesome.me/kit-7effd19d5a/icons/css/all.css";
 
 export const metadata: Metadata = {
   title: "Remilia Stats",
-  description: "Track performance and compete with other users",
   icons: {
     icon: '/favicon.ico',
+  },
+  openGraph: {
+    title: "Remilia Stats",
+    images: ['/assets/img/avatar.jpg'],
+  },
+  twitter: {
+    card: 'summary',
+    title: "Remilia Stats",
+    images: ['/assets/img/avatar.jpg'],
   },
 };
 
