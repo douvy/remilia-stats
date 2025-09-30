@@ -32,6 +32,30 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Check if this is a Vercel Cron request
+  const userAgent = request.headers.get('user-agent');
+  const isVercelCron = userAgent?.includes('vercel-cron/1.0');
+
+  if (isVercelCron) {
+    // Run sync for Vercel Cron
+    try {
+      await runManualSync();
+      return NextResponse.json({
+        success: true,
+        message: 'Cron sync completed',
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      console.error('❌ Cron sync failed:', message);
+      return NextResponse.json({
+        success: false,
+        error: message
+      }, { status: 500 });
+    }
+  }
+
+  // Return status for non-cron GET requests
   return NextResponse.json(getSchedulerStatus());
 }
