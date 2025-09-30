@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+/* Font face declarations */
+@font-face {
+    font-family: "GT Flexa";
+    src:
+        url("/fonts/GT Flexa/GT-Flexa-Standard-Regular.woff2") format("woff2"),
+        url("/fonts/GT Flexa/GT-Flexa-Standard-Regular.woff") format("woff");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Windsor Bold";
+    src:
+        url("/fonts/WindsorBold/WindsorBold.woff2") format("woff2"),
+        url("/fonts/WindsorBold/WindsorBold.woff") format("woff");
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    --title-color: #f0f0f0;
+    --body-text: #b8bdc7;
+    --background: #131720;
+    --container: #0e0f11;
+    --foreground: #171717;
+}
+
+@theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --font-gt-flexa: "GT Flexa", sans-serif;
+    --font-windsor-bold: "Windsor Bold", serif;
+
+    /* Custom colors */
+    --color-sidebar-dark: #0a0b0d;
+    --color-main-dark: #0a0b0d;
+    --color-main-dark-hover: #0e0e11;
+    --color-header-dark: #16171b;
+    --color-card-bg: #141519;
+    --color-card-bg-hover: #1b1c21;
+    --color-input-bg: #1e2026;
+    --color-divider: #2a2d33;
+
+    --color-primary-dark-green: #006847;
+    --color-primary-green: #27ad75;
+    --color-primary-blue: #2250c7;
+    --color-primary-dark-blue: #142a5c;
+    --color-primary-dark: #d82800;
+    --color-bright-blue: #4296ff;
+    --color-soft-blue: #65a0fd;
+    --color-silver-gray: #8a919e;
+
+    --color-active-green: #00563b;
+    --color-hover-green: #002318;
+    --color-table-hover: #0d0e10;
+
+    --color-text-primary: #ffffff;
+    --color-text-secondary: #9ba1af;
+    --color-text-tertiary: #6b7280;
+    --color-title-color: #f0f0f0;
+    --color-body-text: #b8bdc7;
+}
+
+html,
+body {
+    @apply h-full w-full m-0 p-0;
+}
+
+body {
+    font-family: var(--font-gt-flexa);
+    background-color: var(--background);
+    color: var(--color-body-text);
+    background-image:
+        linear-gradient(#1a1f2e 1px, transparent 1px),
+        linear-gradient(90deg, #1a1f2e 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    font-family: var(--font-windsor-bold);
+    color: var(--color-title-color);
+}
+
+.bg-grid-pattern {
+    background-image:
+        linear-gradient(#1a1f2e 1px, transparent 1px),
+        linear-gradient(90deg, #1a1f2e 1px, transparent 1px);
+}
+
+.bg-grid-size {
+    background-size: 20px 20px;
+}
+
+/* Hide scrollbar for mobile stats carousel */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
