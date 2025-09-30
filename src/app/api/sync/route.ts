@@ -6,12 +6,12 @@ export async function POST(request: NextRequest) {
     // Check for auth in production (allow Vercel Cron or Bearer token)
     if (process.env.NODE_ENV === 'production') {
       const authHeader = request.headers.get('authorization');
-      const cronSecret = request.headers.get('x-vercel-cron-secret');
+      const userAgent = request.headers.get('user-agent');
 
-      const isValidCron = cronSecret === process.env.CRON_SECRET;
+      const isVercelCron = userAgent?.includes('vercel-cron/1.0');
       const isValidBearer = authHeader === `Bearer ${process.env.SYNC_SECRET}`;
 
-      if (!isValidCron && !isValidBearer) {
+      if (!isVercelCron && !isValidBearer) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
     }
