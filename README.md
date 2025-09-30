@@ -1,11 +1,12 @@
 # Remilia Stats
 
-RemiliaNET leaderboard. Auto-syncs every 4h (prod) / 15m (dev).
+RemiliaNET leaderboard. Syncs every 4h via Vercel Cron.
 
 ## Setup
 
 ```bash
 npm install
-cp .env.example .env  # Set REDIS_URL
+cp .env.example .env  # Configure Upstash
+npm run sync
 npm run dev
 ```
