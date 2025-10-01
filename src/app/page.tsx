@@ -306,15 +306,30 @@ export default function Home() {
                   </button>
                 </div>
               ) : (
-                <div className="text-sm text-[#6e7787]">
-                  Showing {data?.pagination?.total?.toLocaleString() || 0} users
-                </div>
-              )}
+                <>
+                  {/* Mobile: inline */}
+                  <div className="text-sm text-[#6e7787] sm:hidden flex items-center gap-2">
+                    <span>{data?.pagination?.total?.toLocaleString() || 0} users</span>
+                    {data?.meta?.lastUpdated && (
+                      <>
+                        <span className="text-[#3e4350]">•</span>
+                        <span className="text-xs">Updated {formatRelativeTime(data.meta.lastUpdated)}</span>
+                      </>
+                    )}
+                  </div>
 
-              {data?.meta?.lastUpdated && (
-                <div className="text-xs text-[#6e7787]">
-                  Updated {formatRelativeTime(data.meta.lastUpdated)}
-                </div>
+                  {/* Desktop: left aligned */}
+                  <div className="text-sm text-[#6e7787] hidden sm:block">
+                    Showing {data?.pagination?.total?.toLocaleString() || 0} users
+                  </div>
+
+                  {/* Desktop: right aligned */}
+                  {data?.meta?.lastUpdated && (
+                    <div className="text-xs text-[#6e7787] hidden sm:block">
+                      Updated {formatRelativeTime(data.meta.lastUpdated)}
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -413,7 +428,8 @@ export default function Home() {
                   currentData.map((user) => (
                     <tr
                       key={user.username}
-                      className="bg-gradient-to-r from-[#161a29] to-[#19191e]/60 hover:bg-gradient-to-r hover:from-[#1a1e2d] hover:to-[#1c1f25] transition-colors"
+                      onClick={() => handleSearch(user.username)}
+                      className="bg-gradient-to-r from-[#161a29] to-[#19191e]/60 hover:bg-gradient-to-r hover:from-[#1a1e2d] hover:to-[#1c1f25] transition-colors cursor-pointer"
                     >
                       <td className="py-3 px-6 text-sm font-medium text-white">
                         {user.rank}

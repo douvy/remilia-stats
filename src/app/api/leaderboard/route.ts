@@ -38,17 +38,36 @@ export async function GET(request: NextRequest) {
     }
 
     // Upstash REST returns already parsed data, standard Redis returns string
-    const allUsers = typeof leaderboardData === 'string' ? JSON.parse(leaderboardData) : leaderboardData;
-    const meta = metaData ? (typeof metaData === 'string' ? JSON.parse(metaData) : metaData) : {};
+    let allUsers;
+    let meta;
+
+    try {
+      allUsers = typeof leaderboardData === 'string' ? JSON.parse(leaderboardData) : leaderboardData;
+      meta = metaData ? (typeof metaData === 'string' ? JSON.parse(metaData) : metaData) : {};
+    } catch (e) {
+      // If parsing fails, data is already an object
+      allUsers = leaderboardData;
+      meta = metaData || {};
+    }
 
     // Filter by search query if provided
     let filteredUsers = allUsers;
     if (search.trim()) {
       const searchLower = search.toLowerCase();
-      filteredUsers = allUsers.filter((user: any) =>
-        user.username.toLowerCase().includes(searchLower) ||
-        user.displayName.toLowerCase().includes(searchLower)
+      // First try exact username match
+      const exactMatch = allUsers.find((user: any) =>
+        user.username.toLowerCase() === searchLower
       );
+
+      if (exactMatch) {
+        filteredUsers = [exactMatch];
+      } else {
+        // Fall back to partial match
+        filteredUsers = allUsers.filter((user: any) =>
+          user.username.toLowerCase().includes(searchLower) ||
+          user.displayName.toLowerCase().includes(searchLower)
+        );
+      }
     }
 
     // Sort users
