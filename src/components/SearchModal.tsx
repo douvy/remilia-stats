@@ -102,16 +102,39 @@ export default function SearchModal({
     }
   };
 
-  // Generate real leaderboard data
-  const topBeetles = users
-    ? [...users].sort((a, b) => b.beetles - a.beetles).slice(0, 5)
-    : [];
-  const topPokes = users
-    ? [...users].sort((a, b) => b.pokes - a.pokes).slice(0, 5)
-    : [];
-  const topSocialCredit = users
-    ? [...users].sort((a, b) => b.socialCredit - a.socialCredit).slice(0, 5)
-    : [];
+  // Fetch actual top 5 leaderboards from API
+  const [topBeetles, setTopBeetles] = useState<UserStats[]>([]);
+  const [topPokes, setTopPokes] = useState<UserStats[]>([]);
+  const [topSocialCredit, setTopSocialCredit] = useState<UserStats[]>([]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // Fetch top 5 for each category
+    const fetchTopLeaderboards = async () => {
+      try {
+        const [beetlesRes, pokesRes, socialCreditRes] = await Promise.all([
+          fetch('/api/leaderboard?sortBy=beetles&sortDirection=desc&limit=5&page=1'),
+          fetch('/api/leaderboard?sortBy=pokes&sortDirection=desc&limit=5&page=1'),
+          fetch('/api/leaderboard?sortBy=socialCredit&sortDirection=desc&limit=5&page=1'),
+        ]);
+
+        const [beetlesData, pokesData, socialCreditData] = await Promise.all([
+          beetlesRes.json(),
+          pokesRes.json(),
+          socialCreditRes.json(),
+        ]);
+
+        setTopBeetles(beetlesData.users || []);
+        setTopPokes(pokesData.users || []);
+        setTopSocialCredit(socialCreditData.users || []);
+      } catch (error) {
+        console.error('Failed to fetch top leaderboards:', error);
+      }
+    };
+
+    fetchTopLeaderboards();
+  }, [isOpen]);
 
   // Use API to search all users, not just current page
   const [searchResults, setSearchResults] = useState<UserStats[]>([]);
