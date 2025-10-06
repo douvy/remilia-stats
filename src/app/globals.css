@@ -74,10 +74,7 @@ body {
     font-family: var(--font-gt-flexa);
     background-color: var(--background);
     color: var(--color-body-text);
-    background-image:
-        linear-gradient(#1a1f2e 1px, transparent 1px),
-        linear-gradient(90deg, #1a1f2e 1px, transparent 1px);
-    background-size: 20px 20px;
+    background-image: url("data:image/svg+xml,<svg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'><rect x='0.5' y='0.5' width='1.5' height='1.5' fill='%231a1f2e'/></svg>");
 }
 
 h1,
@@ -89,13 +86,11 @@ h4 {
 }
 
 .bg-grid-pattern {
-    background-image:
-        linear-gradient(#1a1f2e 1px, transparent 1px),
-        linear-gradient(90deg, #1a1f2e 1px, transparent 1px);
+    background-image: url("data:image/svg+xml,<svg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'><rect x='0.5' y='0.5' width='1.5' height='1.5' fill='%231a1f2e'/></svg>");
 }
 
 .bg-grid-size {
-    background-size: 20px 20px;
+    /* Size is now defined in the SVG */
 }
 
 /* Hide scrollbar for mobile stats carousel */
