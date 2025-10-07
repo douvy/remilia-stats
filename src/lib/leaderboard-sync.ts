@@ -18,10 +18,10 @@ interface SyncMetrics {
   startTime: number;
 }
 
-const USER_BATCH_SIZE = 50;
-const RATE_LIMIT_DELAY = 1500;
-const MAX_RETRIES = 3;
-const SYNC_TIMEOUT_MS = 900000; // 15 minutes
+const USER_BATCH_SIZE = 100; // Increased from 50
+const RATE_LIMIT_DELAY = 500; // Reduced from 1500ms
+const MAX_RETRIES = 2; // Reduced from 3
+const SYNC_TIMEOUT_MS = 270000; // 4.5 minutes (under Vercel's 5min limit)
 
 async function fetchWithRetry(url: string, retries = MAX_RETRIES): Promise<any> {
   let lastError: Error;
@@ -33,7 +33,7 @@ async function fetchWithRetry(url: string, retries = MAX_RETRIES): Promise<any> 
           'Accept': 'application/json',
           'User-Agent': 'RemiliaStats/2.0',
         },
-        signal: AbortSignal.timeout(10000), // 10s timeout per request
+        signal: AbortSignal.timeout(5000), // 5s timeout per request (reduced from 10s)
       });
 
       if (response.status === 429) {
@@ -137,8 +137,10 @@ async function processBatch(
 
   const progress = Math.round(((batchIndex + 1) / totalBatches) * 100);
   const successRate = metrics.successfulFetches / (metrics.successfulFetches + metrics.failedFetches) * 100;
+  const elapsed = ((Date.now() - metrics.startTime) / 1000).toFixed(1);
+  const eta = totalBatches > 0 ? (((Date.now() - metrics.startTime) / (batchIndex + 1)) * (totalBatches - batchIndex - 1) / 1000).toFixed(0) : 0;
 
-  console.log(`✅ Batch ${batchIndex + 1} complete: ${validUsers.length}/${batch.length} success | Progress: ${progress}% | Success rate: ${successRate.toFixed(1)}%`);
+  console.log(`✅ Batch ${batchIndex + 1}/${totalBatches}: ${validUsers.length}/${batch.length} ok | ${progress}% | ${successRate.toFixed(1)}% success | ${elapsed}s elapsed | ETA: ${eta}s`);
 
   return validUsers;
 }
@@ -173,9 +175,11 @@ export default async function computeBeetlesLeaderboard(): Promise<LeaderboardUs
         await new Promise(resolve => setTimeout(resolve, RATE_LIMIT_DELAY));
       }
 
-      // Safety check for runaway syncs
-      if (Date.now() - metrics.startTime > SYNC_TIMEOUT_MS) {
-        throw new Error('Sync timeout exceeded - preventing runaway process');
+      // Safety check for timeout (with 30s buffer)
+      const elapsed = Date.now() - metrics.startTime;
+      if (elapsed > SYNC_TIMEOUT_MS) {
+        console.warn(`⚠️ Sync timeout approaching at ${(elapsed / 1000).toFixed(1)}s - saving partial results`);
+        break; // Exit loop and save what we have
       }
     }
 
