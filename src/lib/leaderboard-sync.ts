@@ -92,7 +92,7 @@ async function fetchUserProfile(username: string, metrics: SyncMetrics): Promise
 async function getAllUsers(): Promise<string[]> {
   console.log('🔄 Fetching complete user list...');
 
-  const response = await fetchWithRetry('https://remilia.com/api/friends?page=1&limit=5000&username=remilia_jackson');
+  const response = await fetchWithRetry('https://remilia.com/api/friends?page=1&limit=10000&username=remilia_jackson');
 
   if (!response?.friends || !Array.isArray(response.friends)) {
     throw new Error('Invalid friends API response');
