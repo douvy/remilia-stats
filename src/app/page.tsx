@@ -473,9 +473,18 @@ export default function Home() {
           {/* Pagination */}
           <div className="flex justify-between items-center mt-6">
             <div className="text-sm text-[#6e7787]">
-              {data?.pagination
-                ? `Showing ${(data.pagination.page - 1) * data.pagination.limit + 1}-${Math.min(data.pagination.page * data.pagination.limit, data.pagination.total)} of ${data.pagination.total.toLocaleString()} users`
-                : "Loading..."}
+              {data?.pagination ? (
+                <>
+                  <span className="hidden sm:inline">
+                    Showing {(data.pagination.page - 1) * data.pagination.limit + 1}-{Math.min(data.pagination.page * data.pagination.limit, data.pagination.total)} of {data.pagination.total.toLocaleString()} users
+                  </span>
+                  <span className="sm:hidden">
+                    Page {data.pagination.page} of {data.pagination.pages}
+                  </span>
+                </>
+              ) : (
+                "Loading..."
+              )}
             </div>
 
             <div className="flex items-center space-x-3">
@@ -531,6 +540,20 @@ export default function Home() {
           </div>
         </section>
       </div>
+
+      {/* Footer */}
+      <footer className="bg-primary-blue py-8 mt-12">
+        <div className="container mx-auto px-4 text-center">
+          <a
+            href="https://github.com/douvy/remilia-stats"
+            className="text-[#f1f2f4] transition-colors border-b border-[#5175d1] pb-[1px] hover:border-[#f1f2f4]"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Star on GitHub
+          </a>
+        </div>
+      </footer>
     </main>
   );
 }
