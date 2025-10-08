@@ -183,13 +183,13 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-background bg-grid-pattern bg-grid-size">
+    <main className="min-h-screen bg-background bg-grid-pattern bg-grid-size flex flex-col">
       <Header
         onSearch={handleSearch}
         users={users}
         connectionStatus={connectionStatus}
       />
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="container mx-auto px-4 py-8 max-w-7xl flex-grow">
         {/* Stats Cards */}
         <div className="mb-8 md:grid md:grid-cols-3 md:gap-6 hidden">
           <div className="bg-gradient-to-r from-[#161a29] to-[#19191e]/60 p-6 rounded-lg border border-divider">

@@ -179,11 +179,10 @@ export default function SearchModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 md:pt-32 px-4 overflow-y-auto bg-black/30">
+    <div className="fixed inset-0 z-50 flex items-start justify-center md:pt-32 md:px-4 overflow-y-auto bg-black/30">
       <div
         ref={modalRef}
-        className="w-full bg-[#14161a] border border-[#23252a] rounded-md shadow-lg flex flex-col max-h-[80vh] md:max-h-[70vh]"
-        style={{ maxWidth: "600px" }}
+        className="w-full h-full md:h-auto md:max-h-[70vh] md:max-w-[600px] bg-[#14161a] border-0 md:border border-[#23252a] md:rounded-md shadow-lg flex flex-col"
       >
         {/* Fixed Header */}
         <form
@@ -201,7 +200,7 @@ export default function SearchModal({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search RemiliaNET users"
-              className="flex-grow bg-transparent border-none focus:outline-none text-[#b8bdc7] placeholder-[#b8bdc7]/50 text-sm"
+              className="flex-grow bg-transparent border-none focus:outline-none text-[#b8bdc7] placeholder-[#b8bdc7]/50 text-base"
             />
           </div>
           <div className="flex items-center">
