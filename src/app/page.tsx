@@ -308,14 +308,15 @@ export default function Home() {
                 </div>
               ) : (
                 <>
-                  {/* Mobile: inline */}
-                  <div className="text-sm text-[#6e7787] sm:hidden flex items-center gap-2">
-                    <span>{data?.pagination?.total?.toLocaleString() || 0} users</span>
+                  {/* Mobile: split layout */}
+                  <div className="flex justify-between items-center w-full sm:hidden">
+                    <div className="text-sm text-[#6e7787]">
+                      <span>{data?.pagination?.total?.toLocaleString() || 0} users</span>
+                    </div>
                     {data?.meta?.lastUpdated && (
-                      <>
-                        <span className="text-[#3e4350]">•</span>
-                        <span className="text-xs">Updated {formatRelativeTime(data.meta.lastUpdated)}</span>
-                      </>
+                      <div className="text-xs text-[#6e7787]">
+                        Updated {formatRelativeTime(data.meta.lastUpdated)}
+                      </div>
                     )}
                   </div>
 
