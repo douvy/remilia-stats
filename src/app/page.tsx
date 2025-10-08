@@ -186,6 +186,7 @@ export default function Home() {
     <main className="min-h-screen bg-background bg-grid-pattern bg-grid-size flex flex-col">
       <Header
         onSearch={handleSearch}
+        onReset={() => setCurrentPage(1)}
         users={users}
         connectionStatus={connectionStatus}
       />
@@ -488,6 +489,16 @@ export default function Home() {
             </div>
 
             <div className="flex items-center space-x-3">
+              {currentPage > 2 && (
+                <button
+                  onClick={() => goToPage(1)}
+                  disabled={isLoading}
+                  className="px-2 py-1 text-sm rounded-md transition-none bg-[#1d1f23] text-white border border-divider border-b-[#282a2f] border-b-2"
+                  aria-label="First page"
+                >
+                  <i className="fa-regular fa-angles-left"></i>
+                </button>
+              )}
               <button
                 onClick={() => goToPage(currentPage - 1)}
                 disabled={currentPage === 1 || isLoading}
@@ -569,6 +580,16 @@ export default function Home() {
               >
                 Next
               </button>
+              {currentPage < totalPages - 1 && (
+                <button
+                  onClick={() => goToPage(totalPages)}
+                  disabled={isLoading}
+                  className="px-2 py-1 text-sm rounded-md transition-none bg-[#1d1f23] text-white border border-divider border-b-[#282a2f] border-b-2"
+                  aria-label="Last page"
+                >
+                  <i className="fa-regular fa-angles-right"></i>
+                </button>
+              )}
             </div>
           </div>
         </section>

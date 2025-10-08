@@ -9,12 +9,14 @@ import type { UserStats } from "@/types/remilia";
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
+  onReset?: () => void;
   users?: UserStats[];
   connectionStatus?: ConnectionStatus;
 }
 
 export default function Header({
   onSearch,
+  onReset,
   users,
   connectionStatus = "connecting",
 }: HeaderProps) {
@@ -90,7 +92,7 @@ export default function Header({
           <div className="relative flex items-center w-full">
             {/* Logo and Brand Name */}
             <div className="flex items-center">
-              <Link href="/" className="inline-flex">
+              <Link href="/" className="inline-flex" onClick={onReset}>
                 <div className="flex items-center">
                   <div className="flex-shrink-0 mr-2">
                     <Image
