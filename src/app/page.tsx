@@ -496,8 +496,8 @@ export default function Home() {
                 Previous
               </button>
 
-              <div className="flex items-center space-x-1">
-                {/* Pagination buttons */}
+              <div className="hidden sm:flex items-center space-x-1">
+                {/* Pagination buttons - desktop (5 buttons) */}
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                   let pageNum;
                   if (totalPages <= 5) {
@@ -518,6 +518,39 @@ export default function Home() {
                       onClick={() => goToPage(pageNum)}
                       disabled={isLoading}
                       className={`px-3 py-1 text-sm rounded-md transition-none border border-b-2 ${
+                        currentPage === pageNum
+                          ? "bg-primary-blue text-white border-primary-blue border-b-primary-dark-blue"
+                          : "bg-[#1d1f23] text-white border-divider border-b-[#282a2f]"
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="flex sm:hidden items-center space-x-1">
+                {/* Pagination buttons - mobile (3 buttons) */}
+                {Array.from({ length: Math.min(3, totalPages) }, (_, i) => {
+                  let pageNum;
+                  if (totalPages <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 2) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 1) {
+                    pageNum = totalPages - 2 + i;
+                  } else {
+                    pageNum = currentPage - 1 + i;
+                  }
+
+                  if (pageNum < 1 || pageNum > totalPages) return null;
+
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => goToPage(pageNum)}
+                      disabled={isLoading}
+                      className={`px-2.5 py-1 text-sm rounded-md transition-none border border-b-2 ${
                         currentPage === pageNum
                           ? "bg-primary-blue text-white border-primary-blue border-b-primary-dark-blue"
                           : "bg-[#1d1f23] text-white border-divider border-b-[#282a2f]"
