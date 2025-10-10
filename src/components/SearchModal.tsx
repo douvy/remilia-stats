@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useState, useEffect, useRef, FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import type { UserStats } from "@/types/remilia";
 
 interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSearch: (query: string) => void;
-  users: UserStats[];
+  onSearch?: (query: string) => void;
+  users?: UserStats[];
 }
 
 type SearchType = "users" | "beetles" | "pokes" | "socialCredit" | null;
@@ -16,8 +17,9 @@ export default function SearchModal({
   isOpen,
   onClose,
   onSearch,
-  users,
+  users = [],
 }: SearchModalProps) {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState<SearchType>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -93,12 +95,18 @@ export default function SearchModal({
     }
   };
 
+  // Handle user click - navigate to profile
+  const handleUserClick = (username: string) => {
+    router.push(`/${username}`);
+    onClose();
+  };
+
   // Handle search submission
   const handleSearchSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      onSearch(searchQuery.trim());
-      onClose();
+    if (searchQuery.trim() && searchResults.length > 0) {
+      // Navigate to first result
+      handleUserClick(searchResults[0].username);
     }
   };
 
@@ -237,10 +245,7 @@ export default function SearchModal({
                     <div
                       key={user.username}
                       className="px-2 py-2.5 rounded flex items-center justify-between cursor-pointer hover:bg-[#23252a]"
-                      onClick={() => {
-                        onSearch(user.username);
-                        onClose();
-                      }}
+                      onClick={() => handleUserClick(user.username)}
                     >
                       <div className="flex items-center gap-3">
                         <img
@@ -292,10 +297,7 @@ export default function SearchModal({
                       <div
                         key={user.username}
                         className="px-2 py-2.5 rounded flex items-center justify-between cursor-pointer hover:bg-[#23252a]"
-                        onClick={() => {
-                          onSearch(user.username);
-                          onClose();
-                        }}
+                        onClick={() => handleUserClick(user.username)}
                       >
                         <div className="flex items-center gap-3">
                           <span className="text-blue-400 text-sm">
@@ -336,10 +338,7 @@ export default function SearchModal({
                       <div
                         key={user.username}
                         className="px-2 py-2.5 rounded flex items-center justify-between cursor-pointer hover:bg-[#23252a]"
-                        onClick={() => {
-                          onSearch(user.username);
-                          onClose();
-                        }}
+                        onClick={() => handleUserClick(user.username)}
                       >
                         <div className="flex items-center gap-3">
                           <span className="text-blue-400 text-sm">
@@ -380,10 +379,7 @@ export default function SearchModal({
                       <div
                         key={user.username}
                         className="px-2 py-2.5 rounded flex items-center justify-between cursor-pointer hover:bg-[#23252a]"
-                        onClick={() => {
-                          onSearch(user.username);
-                          onClose();
-                        }}
+                        onClick={() => handleUserClick(user.username)}
                       >
                         <div className="flex items-center gap-3">
                           <span className="text-blue-400 text-sm">

@@ -4,6 +4,7 @@ import "@awesome.me/kit-7effd19d5a/icons/css/all.css";
 import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://remiliastats.com'),
   title: "Remilia Stats",
   icons: {
     icon: '/favicon.ico',

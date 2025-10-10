@@ -87,7 +87,7 @@ export default function Header({
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-[#15171a] border-b border-divider">
+      <header className="sticky top-0 z-50 bg-[#15171a] border-b border-[#1b2028]">
         <div className="container mx-auto px-4 py-3">
           <div className="relative flex items-center w-full">
             {/* Logo and Brand Name */}

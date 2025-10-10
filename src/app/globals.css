@@ -53,6 +53,8 @@
     --color-bright-blue: #4296ff;
     --color-soft-blue: #65a0fd;
     --color-silver-gray: #8a919e;
+    --color-soft-lime-green: #99efae;
+    --color-yellow: #e6b313;
 
     --color-active-green: #00563b;
     --color-hover-green: #002318;
@@ -101,4 +103,64 @@ h4 {
 .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
+}
+
+/* Tooltip styles - desktop only */
+@media (min-width: 768px) {
+    .tooltip-container {
+        position: relative;
+    }
+
+    .tooltip-container::before {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-4px);
+        padding: 4px 8px;
+        background: linear-gradient(135deg, rgba(22, 26, 41, 0.98), rgba(25, 25, 30, 0.98));
+        color: #b8bdc7;
+        font-size: 11px;
+        border-radius: 4px;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 150ms ease-in-out, transform 150ms ease-in-out;
+        border: 1px solid rgba(42, 45, 51, 0.8);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        z-index: 50;
+    }
+
+    .tooltip-container:hover::before {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-8px);
+    }
+}
+
+/* Retro VHS/CRT Effects */
+@keyframes vhs-tracking {
+    0% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(-2px);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+@keyframes rgb-shift {
+    0% {
+        transform: translate(0, 0);
+    }
+    33% {
+        transform: translate(-1px, 0);
+    }
+    66% {
+        transform: translate(1px, 0);
+    }
+    100% {
+        transform: translate(0, 0);
+    }
 }

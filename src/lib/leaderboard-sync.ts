@@ -233,6 +233,19 @@ export default async function computeBeetlesLeaderboard(): Promise<LeaderboardUs
 
     await redis.set('beetles-leaderboard-meta', JSON.stringify(metadata), { ex: 86400 });
 
+    // Clear all profile caches to ensure sync
+    console.log('🗑️ Clearing profile caches...');
+    try {
+      const profileKeys = await redis.keys('profile:*');
+      if (profileKeys.length > 0) {
+        await redis.del(...profileKeys);
+        console.log(`✅ Cleared ${profileKeys.length} profile caches`);
+      }
+    } catch (cacheError) {
+      console.warn('⚠️ Failed to clear profile caches:', cacheError);
+      // Non-critical, continue
+    }
+
     // Final logging
     const duration = (Date.now() - metrics.startTime) / 1000;
     const successRate = (metrics.successfulFetches / metrics.totalUsers) * 100;
