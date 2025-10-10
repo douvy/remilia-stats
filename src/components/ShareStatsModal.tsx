@@ -88,44 +88,28 @@ export default function ShareStatsModal({
 
       document.body.removeChild(clonedElement);
 
-      // Copy to clipboard or download on iOS
+      // Copy to clipboard
       canvas.toBlob(async (blob) => {
-        if (!blob) return;
+        if (!blob) {
+          setIsGenerating(false);
+          return;
+        }
 
+        // Always attempt clipboard write - iOS Safari 13.4+ supports this
         try {
-          // Try clipboard first
-          if (navigator.clipboard && typeof ClipboardItem !== 'undefined') {
-            await navigator.clipboard.write([
-              new ClipboardItem({ "image/png": blob }),
-            ]);
+          await navigator.clipboard.write([
+            new ClipboardItem({ "image/png": blob }),
+          ]);
 
-            setToastMessage("Stat card copied!");
-            setShowToast(true);
-            toastTimeoutRef.current = setTimeout(() => {
-              setShowToast(false);
-              onClose();
-            }, 1000);
-          } else {
-            // Fallback: Download image (for iOS Safari)
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `${username}-stats.png`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-
-            setToastMessage("Image downloaded!");
-            setShowToast(true);
-            toastTimeoutRef.current = setTimeout(() => {
-              setShowToast(false);
-              onClose();
-            }, 1000);
-          }
+          setToastMessage("Stat card copied!");
+          setShowToast(true);
+          toastTimeoutRef.current = setTimeout(() => {
+            setShowToast(false);
+            onClose();
+          }, 1000);
         } catch (error) {
-          console.error("Failed to copy/download image:", error);
-          setToastMessage("Failed to copy. Please try again.");
+          console.error("Failed to copy to clipboard:", error);
+          setToastMessage("Copy failed. Please try again.");
           setShowToast(true);
           toastTimeoutRef.current = setTimeout(() => {
             setShowToast(false);
