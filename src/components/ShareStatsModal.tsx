@@ -253,7 +253,7 @@ export default function ShareStatsModal({
                   className="absolute inset-0"
                   style={{
                     background:
-                      "linear-gradient(180deg, rgba(22, 26, 41, 0.75), rgba(25, 25, 30, 0.85))",
+                      "linear-gradient(180deg, rgba(22, 26, 41, 0.5), rgba(25, 25, 30, 0.65))",
                   }}
                 />
               </>
