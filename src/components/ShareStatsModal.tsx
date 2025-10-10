@@ -88,18 +88,41 @@ export default function ShareStatsModal({
 
       document.body.removeChild(clonedElement);
 
-      // Copy to clipboard
-      canvas.toBlob(async (blob) => {
-        if (!blob) {
-          setIsGenerating(false);
-          return;
-        }
+      // Convert canvas to blob immediately to maintain user gesture context
+      const blob = await new Promise<Blob | null>((resolve) => {
+        canvas.toBlob((b) => resolve(b), "image/png");
+      });
 
-        // Always attempt clipboard write - iOS Safari 13.4+ supports this
+      if (!blob) {
+        setIsGenerating(false);
+        return;
+      }
+
+      // iOS Safari requires ClipboardItem to be created synchronously in user gesture
+      // Using Promise-based ClipboardItem for better iOS compatibility
+      try {
+        const clipboardItem = new ClipboardItem({
+          "image/png": blob,
+        });
+
+        await navigator.clipboard.write([clipboardItem]);
+
+        setToastMessage("Stat card copied!");
+        setShowToast(true);
+        toastTimeoutRef.current = setTimeout(() => {
+          setShowToast(false);
+          onClose();
+        }, 1000);
+      } catch (clipboardError) {
+        console.error("Clipboard write failed:", clipboardError);
+
+        // Fallback for iOS: attempt with delayed blob promise
         try {
-          await navigator.clipboard.write([
-            new ClipboardItem({ "image/png": blob }),
-          ]);
+          const clipboardItemDelayed = new ClipboardItem({
+            "image/png": Promise.resolve(blob),
+          });
+
+          await navigator.clipboard.write([clipboardItemDelayed]);
 
           setToastMessage("Stat card copied!");
           setShowToast(true);
@@ -107,19 +130,43 @@ export default function ShareStatsModal({
             setShowToast(false);
             onClose();
           }, 1000);
-        } catch (error) {
-          console.error("Failed to copy to clipboard:", error);
-          setToastMessage("Copy failed. Please try again.");
-          setShowToast(true);
-          toastTimeoutRef.current = setTimeout(() => {
-            setShowToast(false);
-          }, 2000);
-        } finally {
-          setIsGenerating(false);
+        } catch (fallbackError) {
+          console.error("Fallback clipboard failed:", fallbackError);
+
+          // Final fallback: download the image on mobile devices
+          if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${username}-stats.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            setToastMessage("Image saved to downloads!");
+            setShowToast(true);
+            toastTimeoutRef.current = setTimeout(() => {
+              setShowToast(false);
+              onClose();
+            }, 1500);
+          } else {
+            setToastMessage("Copy failed. Please try again.");
+            setShowToast(true);
+            toastTimeoutRef.current = setTimeout(() => {
+              setShowToast(false);
+            }, 2000);
+          }
         }
-      }, "image/png");
+      }
     } catch (error) {
       console.error("Failed to generate image:", error);
+      setToastMessage("Failed to generate image.");
+      setShowToast(true);
+      toastTimeoutRef.current = setTimeout(() => {
+        setShowToast(false);
+      }, 2000);
+    } finally {
       setIsGenerating(false);
     }
   };
