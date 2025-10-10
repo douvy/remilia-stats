@@ -40,7 +40,7 @@ export default function ShareStatsModal({
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("Stat card copied!");
   const [isGenerating, setIsGenerating] = useState(false);
-  const toastTimeoutRef = useRef<NodeJS.Timeout>();
+  const toastTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   // Handle ESC key to close modal
   useEffect(() => {
