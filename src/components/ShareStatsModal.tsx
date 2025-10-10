@@ -88,23 +88,43 @@ export default function ShareStatsModal({
 
       document.body.removeChild(clonedElement);
 
-      // Copy to clipboard
+      // Copy to clipboard or download on iOS
       canvas.toBlob(async (blob) => {
         if (!blob) return;
 
         try {
-          await navigator.clipboard.write([
-            new ClipboardItem({ "image/png": blob }),
-          ]);
+          // Try clipboard first
+          if (navigator.clipboard && typeof ClipboardItem !== 'undefined') {
+            await navigator.clipboard.write([
+              new ClipboardItem({ "image/png": blob }),
+            ]);
 
-          setToastMessage("Stat card copied!");
-          setShowToast(true);
-          toastTimeoutRef.current = setTimeout(() => {
-            setShowToast(false);
-            onClose();
-          }, 1000);
+            setToastMessage("Stat card copied!");
+            setShowToast(true);
+            toastTimeoutRef.current = setTimeout(() => {
+              setShowToast(false);
+              onClose();
+            }, 1000);
+          } else {
+            // Fallback: Download image (for iOS Safari)
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${username}-stats.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            setToastMessage("Image downloaded!");
+            setShowToast(true);
+            toastTimeoutRef.current = setTimeout(() => {
+              setShowToast(false);
+              onClose();
+            }, 1000);
+          }
         } catch (error) {
-          console.error("Failed to copy image:", error);
+          console.error("Failed to copy/download image:", error);
           setToastMessage("Failed to copy. Please try again.");
           setShowToast(true);
           toastTimeoutRef.current = setTimeout(() => {
