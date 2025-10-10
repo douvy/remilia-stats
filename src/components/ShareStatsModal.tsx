@@ -116,7 +116,7 @@ export default function ShareStatsModal({
       } catch (clipboardError) {
         console.error("Clipboard write failed:", clipboardError);
 
-        // Fallback for iOS: attempt with delayed blob promise
+        // Fallback for iOS: attempt with Promise-based blob
         try {
           const clipboardItemDelayed = new ClipboardItem({
             "image/png": Promise.resolve(blob),
@@ -132,31 +132,11 @@ export default function ShareStatsModal({
           }, 1000);
         } catch (fallbackError) {
           console.error("Fallback clipboard failed:", fallbackError);
-
-          // Final fallback: download the image on mobile devices
-          if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `${username}-stats.png`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-
-            setToastMessage("Image saved to downloads!");
-            setShowToast(true);
-            toastTimeoutRef.current = setTimeout(() => {
-              setShowToast(false);
-              onClose();
-            }, 1500);
-          } else {
-            setToastMessage("Copy failed. Please try again.");
-            setShowToast(true);
-            toastTimeoutRef.current = setTimeout(() => {
-              setShowToast(false);
-            }, 2000);
-          }
+          setToastMessage("Copy failed. Please try again.");
+          setShowToast(true);
+          toastTimeoutRef.current = setTimeout(() => {
+            setShowToast(false);
+          }, 2000);
         }
       }
     } catch (error) {
