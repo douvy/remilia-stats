@@ -341,7 +341,7 @@ export default function ShareStatsModal({
         <button
           onClick={handleCopy}
           disabled={isGenerating}
-          className="w-full px-4 py-3 bg-primary-blue text-white rounded-md hover:bg-primary-dark-blue transition-colors shadow-[inset_0_-2px_0_0_#16368e] hover:shadow-[inset_0_-2px_0_0_#0d1b45] font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          className="hidden md:flex w-full px-4 py-3 bg-primary-blue text-white rounded-md hover:bg-primary-dark-blue transition-colors shadow-[inset_0_-2px_0_0_#16368e] hover:shadow-[inset_0_-2px_0_0_#0d1b45] font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed items-center justify-center"
         >
           {isGenerating ? (
             <>

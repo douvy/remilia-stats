@@ -350,7 +350,7 @@ export default function UserProfilePage() {
                     </div>
                     <button
                       onClick={() => setShowShareModal(true)}
-                      className="px-3 py-2 bg-[#151619]/40 hover:bg-[#1e2026]/60 border border-[#343743] rounded-md text-white transition-all text-sm shadow-[inset_0_-2px_0_0_#282a33] w-fit cursor-pointer"
+                      className="hidden md:block px-3 py-2 bg-[#151619]/40 hover:bg-[#1e2026]/60 border border-[#343743] rounded-md text-white transition-all text-sm shadow-[inset_0_-2px_0_0_#282a33] w-fit cursor-pointer"
                     >
                       Copy stats
                     </button>
