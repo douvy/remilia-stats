@@ -28,12 +28,12 @@ export default function ProfileStat({
         {label}
       </span>
       <div
-        className={`relative flex items-center gap-1.5 px-2 py-1.5 bg-[#151619] border border-divider rounded-md w-fit ${tooltipText ? 'tooltip-container cursor-pointer md:cursor-default' : ''}`}
+        className={`relative flex items-center gap-1 [@media(min-width:400px)]:gap-1.5 px-1.5 [@media(min-width:400px)]:px-2 py-1 [@media(min-width:400px)]:py-1.5 bg-[#151619] border border-divider rounded-md w-fit ${tooltipText ? 'tooltip-container cursor-pointer md:cursor-default' : ''}`}
         data-tooltip={tooltipText}
         onClick={() => tooltipText && setShowTooltip(!showTooltip)}
       >
         {icon}
-        <span className="text-white text-base font-medium">
+        <span className="text-white text-xs [@media(min-width:400px)]:text-base font-medium">
           {typeof value === "number" ? value.toLocaleString() : value}
         </span>
         {rankInfo && (

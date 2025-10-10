@@ -326,21 +326,21 @@ export default function UserProfilePage() {
                     <ProfileStat
                       label="Beetles"
                       value={profile.beetles}
-                      icon={<i className="fa-regular fa-bug text-soft-blue text-xs"></i>}
+                      icon={<i className="fa-regular fa-bug text-soft-blue text-[10px] [@media(min-width:400px)]:text-xs"></i>}
                       rank={profile.rank}
                       totalUsers={totalUsers}
                     />
                     <ProfileStat
                       label="Pokes"
                       value={profile.pokes}
-                      icon={<i className="fa-regular fa-hand-point-up text-soft-blue text-xs"></i>}
+                      icon={<i className="fa-regular fa-hand-point-up text-soft-blue text-[10px] [@media(min-width:400px)]:text-xs"></i>}
                       rank={profile.pokesRank}
                       totalUsers={totalUsers}
                     />
                     <ProfileStat
                       label="Social Credit"
                       value={profile.socialCredit}
-                      icon={<SocialCreditIcon className="w-3.5 h-3.5 flex-shrink-0" />}
+                      icon={<SocialCreditIcon className="w-3 h-3 [@media(min-width:400px)]:w-3.5 [@media(min-width:400px)]:h-3.5 flex-shrink-0" />}
                       rank={profile.socialCreditRank}
                       totalUsers={totalUsers}
                     />
@@ -349,12 +349,12 @@ export default function UserProfilePage() {
                     <ProfileStat
                       label="Friends"
                       value={profile.friendCount}
-                      icon={<i className="fa-regular fa-users text-soft-blue text-xs"></i>}
+                      icon={<i className="fa-regular fa-users text-soft-blue text-[10px] [@media(min-width:400px)]:text-xs"></i>}
                     />
                     <ProfileStat
                       label="Achievements"
                       value={profile.achievementsCount}
-                      icon={<i className="fa-regular fa-badge text-soft-blue text-xs"></i>}
+                      icon={<i className="fa-regular fa-badge text-soft-blue text-[10px] [@media(min-width:400px)]:text-xs"></i>}
                     />
                   </div>
                 </div>
