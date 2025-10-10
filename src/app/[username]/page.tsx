@@ -184,8 +184,8 @@ export default function UserProfilePage() {
   if (loading) {
     return (
       <main className="min-h-screen flex flex-col">
+        <Header connectionStatus={connectionStatus} />
         <div className="bg-background bg-grid-pattern bg-grid-size pb-[415px] md:pb-[445px]">
-          <Header connectionStatus={connectionStatus} />
         </div>
         <div className="bg-[#141519] border-t border-[#1c2029] flex-grow flex flex-col">
           <div className="container mx-auto px-4 max-w-7xl -mt-[393px] md:-mt-[428px]">
@@ -203,8 +203,8 @@ export default function UserProfilePage() {
   if (error || !profile) {
     return (
       <main className="min-h-screen flex flex-col">
+        <Header connectionStatus={connectionStatus} />
         <div className="bg-background bg-grid-pattern bg-grid-size pb-[415px] md:pb-[445px]">
-          <Header connectionStatus={connectionStatus} />
         </div>
         <div className="bg-[#141519] border-t border-[#1c2029] flex-grow flex flex-col">
           <div className="container mx-auto px-4 max-w-7xl -mt-[393px] md:-mt-[428px]">
@@ -229,8 +229,8 @@ export default function UserProfilePage() {
 
   return (
     <main className="min-h-screen flex flex-col">
+      <Header connectionStatus={connectionStatus} />
       <div className="bg-background bg-grid-pattern bg-grid-size pb-[415px] md:pb-[445px]">
-        <Header connectionStatus={connectionStatus} />
       </div>
       <div className="bg-[#141519] border-t border-[#1c2029] flex-grow flex flex-col">
         <div className="container mx-auto px-4 max-w-7xl -mt-[393px] md:-mt-[428px]">

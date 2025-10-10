@@ -130,14 +130,14 @@ export default function Home() {
 
   return (
     <main className="min-h-screen flex flex-col">
+      <Header
+        onSearch={handleSearch}
+        onReset={() => setCurrentPage(1)}
+        users={users}
+        connectionStatus={connectionStatus}
+      />
       {/* Top section with grid pattern */}
       <div className="bg-background bg-grid-pattern bg-grid-size pb-52 md:pb-64">
-        <Header
-          onSearch={handleSearch}
-          onReset={() => setCurrentPage(1)}
-          users={users}
-          connectionStatus={connectionStatus}
-        />
         <div className="container mx-auto px-4 py-8 max-w-7xl">
           <StatsCards
             totalUsers={data?.meta?.totalUsers || 0}
