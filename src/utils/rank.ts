@@ -7,35 +7,18 @@ export const getRankDisplay = (rank: number, totalUsers?: number) => {
 
   // Determine tier and color
   let tierColor = "text-[#979ba3]"; // Default gray
-  let iconClass = "";
-  let iconColor = "";
-  let tierName = "";
 
   if (rank <= 10) {
-    tierColor = "text-yellow";
-    iconClass = "fa-regular fa-star-shooting";
-    iconColor = "text-yellow";
-    tierName = "TOP 10";
-  } else if (rank <= 25) {
-    tierColor = "text-yellow";
-    iconClass = "fa-regular fa-stars";
-    iconColor = "text-yellow";
-    tierName = "TOP 25";
+    tierColor = "text-soft-lime-green"; // Lime green for top 10
   } else if (rank <= 50) {
-    tierColor = "text-yellow";
-    iconClass = "fa-regular fa-star";
-    iconColor = "text-yellow";
-    tierName = "TOP 50";
-  } else if (rank <= 100) {
-    tierColor = "text-soft-lime-green";
-    tierName = "TOP 100";
+    tierColor = "text-yellow"; // Yellow for top 50
   }
 
   return {
     text: `#${rank.toLocaleString()}`,
     tooltip: percentile ? `TOP ${percentile}%` : null,
     color: tierColor,
-    icon: iconClass,
-    iconColor,
+    icon: "",
+    iconColor: "",
   };
 };

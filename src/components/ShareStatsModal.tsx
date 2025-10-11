@@ -284,7 +284,7 @@ export default function ShareStatsModal({
                   className="absolute inset-0"
                   style={{
                     background:
-                      "linear-gradient(180deg, rgba(22, 26, 41, 0.5), rgba(25, 25, 30, 0.65))",
+                      "linear-gradient(180deg, rgba(22, 26, 41, 0.6), rgba(25, 25, 30, 0.75))",
                   }}
                 />
               </>
@@ -302,10 +302,10 @@ export default function ShareStatsModal({
                 }}
               />
               <div>
-                <h2 className="text-3xl font-windsor-bold text-white mb-0.5">
+                <h2 className="text-3xl font-windsor-bold text-white mb-0">
                   {displayName}
                 </h2>
-                <p className="text-soft-blue text-lg">~{username}</p>
+                <p className="text-[#dddfe4] text-lg">~{username}</p>
               </div>
             </div>
 

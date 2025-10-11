@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import type { UserStats } from "@/types/remilia";
+import SocialCreditIcon from "./SocialCreditIcon";
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -268,7 +269,7 @@ export default function SearchModal({
                           {user.pokes}
                         </span>
                         <span className="flex items-center gap-1.5">
-                          <i className="fa-regular fa-badge text-soft-blue text-xs"></i>
+                          <SocialCreditIcon className="w-4 h-4" />
                           {user.socialCredit}
                         </span>
                       </div>

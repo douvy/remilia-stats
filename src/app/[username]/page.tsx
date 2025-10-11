@@ -364,7 +364,7 @@ export default function UserProfilePage() {
                     <ProfileStat
                       label="Achievements"
                       value={profile.achievementsCount}
-                      icon={<i className="fa-regular fa-badge text-soft-blue text-[10px] [@media(min-width:400px)]:text-xs"></i>}
+                      icon={<i className="fa-regular fa-medal text-soft-blue text-[10px] [@media(min-width:400px)]:text-xs"></i>}
                     />
                   </div>
                 </div>
