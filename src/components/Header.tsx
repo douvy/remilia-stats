@@ -34,7 +34,7 @@ export default function Header({
     switch (status) {
       case "connected":
         return {
-          bgColor: "bg-primary-green",
+          bgColor: "bg-soft-lime-green",
           text: "Connected",
           textColor: "text-[#b8bdc7]",
         };
