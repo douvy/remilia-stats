@@ -149,7 +149,7 @@ export default function Home() {
 
       {/* Bottom section with darker background */}
       <div className="bg-[#141519] border-t border-[#1c2029] flex-grow flex flex-col">
-        <div className="container mx-auto px-4 max-w-7xl">
+        <div className="container mx-auto px-4 max-w-7xl pb-12">
           <section className="-mt-[230px] md:-mt-[292px]">
             <LeaderboardHeader
               searchQuery={searchQuery}

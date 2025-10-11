@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <footer className="bg-primary-blue py-8 mt-12">
+    <footer className="bg-primary-blue py-4 md:py-6">
       <div className="container mx-auto px-4 text-center">
         <a
           href="https://github.com/douvy/remilia-stats"
