@@ -235,7 +235,7 @@ export default function UserProfilePage() {
       <div className="bg-background bg-grid-pattern bg-grid-size pb-[415px] md:pb-[445px]">
       </div>
       <div className="bg-[#141519] border-t border-[#1c2029] flex-grow flex flex-col">
-        <div className="container mx-auto px-4 max-w-7xl -mt-[393px] md:-mt-[428px] pb-12">
+        <div className="container mx-auto px-4 max-w-7xl -mt-[393px] md:-mt-[428px] pb-12 md:pb-20">
           {/* Breadcrumb */}
           <div className="flex items-center justify-between mb-6">
             <button
