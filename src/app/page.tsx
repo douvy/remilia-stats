@@ -6,7 +6,7 @@ import LeaderboardHeader from "@/components/LeaderboardHeader";
 import LeaderboardTable from "@/components/LeaderboardTable";
 import Pagination from "@/components/Pagination";
 import Footer from "@/components/Footer";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import type { ConnectionStatus } from "@/types/api";
@@ -104,10 +104,16 @@ export default function Home() {
   const currentData = users;
   const totalPages = data?.pagination?.pages || 0;
 
+  // Scroll to top when page changes and data is loaded
+  useEffect(() => {
+    if (!isLoading) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [currentPage, isLoading]);
+
   const goToPage = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
-      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
