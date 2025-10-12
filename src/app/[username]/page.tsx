@@ -132,27 +132,6 @@ export default function UserProfilePage() {
         const statsData = statsRes.ok ? await statsRes.json() : null;
         setTotalUsers(statsData?.meta?.totalUsers || null);
 
-        // Fetch cover images for friends
-        const friendsWithCovers = await Promise.all(
-          (data.user.friendsDisplayed || []).map(async (friend: any) => {
-            try {
-              const friendRes = await fetch(
-                `/api/profile/${friend.displayUsername}`,
-              );
-              if (friendRes.ok) {
-                const friendData = await friendRes.json();
-                return {
-                  ...friend,
-                  cover: friendData.user?.cover || null,
-                };
-              }
-            } catch {
-              // If fetch fails, return friend without cover
-            }
-            return { ...friend, cover: null };
-          }),
-        );
-
         setProfile({
           username: data.user.username,
           displayName: data.user.displayName,
@@ -169,7 +148,10 @@ export default function UserProfilePage() {
           location: data.user.location || "",
           cover: data.user.cover || "",
           connections: data.user.connections || [],
-          friendsDisplayed: friendsWithCovers,
+          friendsDisplayed: (data.user.friendsDisplayed || []).map((friend: any) => ({
+            ...friend,
+            cover: null,
+          })),
           rank: userRank,
           pokesRank: pokesRank,
           socialCreditRank: socialCreditRank,
@@ -182,6 +164,51 @@ export default function UserProfilePage() {
     }
     fetchProfile();
   }, [username]);
+
+  // Fetch friend covers after profile loads (non-blocking)
+  useEffect(() => {
+    if (!profile?.friendsDisplayed || profile.friendsDisplayed.length === 0) return;
+
+    // Skip if covers already loaded
+    if (profile.friendsDisplayed.some(f => f.cover !== null)) return;
+
+    let isMounted = true;
+
+    const fetchFriendCovers = async () => {
+      try {
+        const friendsWithCovers = await Promise.all(
+          profile.friendsDisplayed.map(async (friend) => {
+            try {
+              const friendRes = await fetch(`/api/profile/${friend.displayUsername}`);
+              if (friendRes.ok) {
+                const friendData = await friendRes.json();
+                return {
+                  ...friend,
+                  cover: friendData.user?.cover || null,
+                };
+              }
+            } catch {
+              // If fetch fails, keep friend without cover
+            }
+            return friend;
+          })
+        );
+
+        // Only update if component still mounted
+        if (isMounted) {
+          setProfile((prev) => prev ? { ...prev, friendsDisplayed: friendsWithCovers } : null);
+        }
+      } catch (error) {
+        console.error('Failed to fetch friend covers:', error);
+      }
+    };
+
+    fetchFriendCovers();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [profile?.username, username]); // Run when profile loads or username changes
 
   if (loading) {
     return (
