@@ -190,10 +190,54 @@ export default function UserProfilePage() {
         <div className="bg-background bg-grid-pattern bg-grid-size pb-[415px] md:pb-[445px]">
         </div>
         <div className="bg-[#141519] border-t border-[#1c2029] flex-grow flex flex-col">
-          <div className="container mx-auto px-4 max-w-7xl -mt-[393px] md:-mt-[428px]">
-            <div className="flex items-center justify-center py-32">
-              <div className="text-[#6e7787]">
-                <i className="fas fa-spinner fa-spin text-2xl"></i>
+          <div className="container mx-auto px-4 max-w-7xl -mt-[393px] md:-mt-[428px] pb-12 md:pb-20">
+            {/* Breadcrumb skeleton */}
+            <div className="mb-6">
+              <div className="h-5 w-32 bg-[#20222a] rounded animate-pulse"></div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Left Column */}
+              <div className="space-y-6">
+                {/* Profile card skeleton */}
+                <div className="bg-[#181a1f] border border-[#2d323b] shadow-[inset_0_-2px_0_0_#23252a] rounded-lg px-5 py-2">
+                  <div className="flex items-center gap-4 min-h-[200px]">
+                    <div className="w-36 h-36 bg-[#20222a] rounded-lg animate-pulse flex-shrink-0"></div>
+                    <div className="space-y-3 flex-1">
+                      <div className="h-8 w-40 bg-[#20222a] rounded animate-pulse"></div>
+                      <div className="h-6 w-28 bg-[#20222a] rounded animate-pulse"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Stats card skeleton */}
+                <div className="bg-[#181a1f] border border-[#2d323b] shadow-[inset_0_-2px_0_0_#23252a] rounded-lg p-5">
+                  <div className="flex gap-3 mb-3">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="h-14 w-20 bg-[#20222a] rounded-md animate-pulse"></div>
+                    ))}
+                  </div>
+                  <div className="flex gap-3 mb-6">
+                    {[1, 2].map((i) => (
+                      <div key={i} className="h-14 w-20 bg-[#20222a] rounded-md animate-pulse"></div>
+                    ))}
+                  </div>
+                  <div className="h-24 w-full bg-[#20222a] rounded animate-pulse mb-6"></div>
+                  <div className="h-10 w-full bg-[#20222a] rounded-md animate-pulse"></div>
+                </div>
+              </div>
+
+              {/* Right Column */}
+              <div className="space-y-6">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="bg-[#181a1f] border border-[#2d323b] shadow-[inset_0_-2px_0_0_#23252a] rounded-lg p-5">
+                    <div className="h-6 w-32 bg-[#20222a] rounded animate-pulse mb-3"></div>
+                    <div className="space-y-2">
+                      <div className="h-4 w-full bg-[#20222a] rounded animate-pulse"></div>
+                      <div className="h-4 w-5/6 bg-[#20222a] rounded animate-pulse"></div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

@@ -95,12 +95,30 @@ export default function LeaderboardTable({
         </thead>
         <tbody className="divide-y divide-[#20242b]">
           {isLoading && users.length === 0 ? (
-            <tr>
-              <td colSpan={5} className="py-12 text-center text-[#6e7787]">
-                <i className="fas fa-spinner fa-spin text-2xl mb-2 block" />
-                Loading leaderboard...
-              </td>
-            </tr>
+            <>
+              {[...Array(10)].map((_, i) => (
+                <tr key={i} className="bg-[#171924]">
+                  <td className="py-3 px-6">
+                    <div className="h-5 w-8 bg-[#20222a] rounded animate-pulse"></div>
+                  </td>
+                  <td className="py-3 px-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-[#20222a] rounded-md animate-pulse"></div>
+                      <div className="h-5 w-24 bg-[#20222a] rounded animate-pulse"></div>
+                    </div>
+                  </td>
+                  <td className="py-3 px-6">
+                    <div className="h-5 w-12 bg-[#20222a] rounded animate-pulse"></div>
+                  </td>
+                  <td className="py-3 px-6">
+                    <div className="h-5 w-14 bg-[#20222a] rounded animate-pulse"></div>
+                  </td>
+                  <td className="py-3 px-6">
+                    <div className="h-5 w-16 bg-[#20222a] rounded animate-pulse"></div>
+                  </td>
+                </tr>
+              ))}
+            </>
           ) : users.length === 0 ? (
             <tr>
               <td colSpan={5} className="py-12 text-center text-[#6e7787]">

@@ -4,12 +4,14 @@ interface StatsCardsProps {
   totalUsers: number;
   totalPokes: number;
   activeUsers: number;
+  isLoading?: boolean;
 }
 
 export default function StatsCards({
   totalUsers,
   totalPokes,
   activeUsers,
+  isLoading = false,
 }: StatsCardsProps) {
   const [activeCardIndex, setActiveCardIndex] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -72,9 +74,13 @@ export default function StatsCards({
       {/* Desktop Stats Cards */}
       <div className="mb-8 md:grid md:grid-cols-3 md:gap-6 hidden">
         <div className="bg-[#181a1f] p-6 rounded-lg border border-[#2d323b] shadow-[inset_0_-2px_0_0_#23252a]">
-          <div className="text-2xl font-bold text-white mb-1">
-            {totalUsers.toLocaleString()}
-          </div>
+          {isLoading ? (
+            <div className="h-8 w-24 bg-[#20222a] rounded animate-pulse mb-1"></div>
+          ) : (
+            <div className="text-2xl font-bold text-white mb-1">
+              {totalUsers.toLocaleString()}
+            </div>
+          )}
           <div className="text-[#6e7787]">
             <i className="fa-regular fa-users text-soft-blue mr-2"></i>
             Users
@@ -82,9 +88,13 @@ export default function StatsCards({
         </div>
 
         <div className="bg-[#181a1f] p-6 rounded-lg border border-[#2d323b] shadow-[inset_0_-2px_0_0_#23252a]">
-          <div className="text-2xl font-bold text-white mb-1">
-            {totalPokes.toLocaleString()}
-          </div>
+          {isLoading ? (
+            <div className="h-8 w-28 bg-[#20222a] rounded animate-pulse mb-1"></div>
+          ) : (
+            <div className="text-2xl font-bold text-white mb-1">
+              {totalPokes.toLocaleString()}
+            </div>
+          )}
           <div className="text-[#6e7787]">
             <i className="fa-regular fa-hand-pointer text-soft-blue mr-2"></i>
             Pokes
@@ -92,9 +102,13 @@ export default function StatsCards({
         </div>
 
         <div className="bg-[#181a1f] p-6 rounded-lg border border-[#2d323b] shadow-[inset_0_-2px_0_0_#23252a]">
-          <div className="text-2xl font-bold text-white mb-1">
-            {activeUsers.toLocaleString()}
-          </div>
+          {isLoading ? (
+            <div className="h-8 w-24 bg-[#20222a] rounded animate-pulse mb-1"></div>
+          ) : (
+            <div className="text-2xl font-bold text-white mb-1">
+              {activeUsers.toLocaleString()}
+            </div>
+          )}
           <div className="text-[#6e7787]">
             <i className="fa-regular fa-wave-pulse text-soft-blue mr-2"></i>
             Active Users
@@ -113,9 +127,13 @@ export default function StatsCards({
               data-card-index="0"
               className="bg-[#181a1f] p-6 rounded-lg border border-[#2d323b] shadow-[inset_0_-2px_0_0_#23252a] min-w-[280px] snap-center flex-shrink-0"
             >
-              <div className="text-2xl font-bold text-white">
-                {totalUsers.toLocaleString()}
-              </div>
+              {isLoading ? (
+                <div className="h-8 w-24 bg-[#20222a] rounded animate-pulse mb-2"></div>
+              ) : (
+                <div className="text-2xl font-bold text-white">
+                  {totalUsers.toLocaleString()}
+                </div>
+              )}
               <div className="text-[#6e7787]">
                 <i className="fa-regular fa-users text-soft-blue mr-2"></i>
                 Total Users
@@ -126,9 +144,13 @@ export default function StatsCards({
               data-card-index="1"
               className="bg-[#181a1f] p-6 rounded-lg border border-[#2d323b] shadow-[inset_0_-2px_0_0_#23252a] min-w-[280px] snap-center flex-shrink-0"
             >
-              <div className="text-2xl font-bold text-white">
-                {totalPokes.toLocaleString()}
-              </div>
+              {isLoading ? (
+                <div className="h-8 w-28 bg-[#20222a] rounded animate-pulse mb-2"></div>
+              ) : (
+                <div className="text-2xl font-bold text-white">
+                  {totalPokes.toLocaleString()}
+                </div>
+              )}
               <div className="text-[#6e7787]">
                 <i className="fa-regular fa-hand-pointer text-soft-blue mr-2"></i>
                 Total Pokes
@@ -139,9 +161,13 @@ export default function StatsCards({
               data-card-index="2"
               className="bg-[#181a1f] p-6 rounded-lg border border-[#2d323b] shadow-[inset_0_-2px_0_0_#23252a] min-w-[280px] snap-center flex-shrink-0"
             >
-              <div className="text-2xl font-bold text-white">
-                {activeUsers.toLocaleString()}
-              </div>
+              {isLoading ? (
+                <div className="h-8 w-24 bg-[#20222a] rounded animate-pulse mb-2"></div>
+              ) : (
+                <div className="text-2xl font-bold text-white">
+                  {activeUsers.toLocaleString()}
+                </div>
+              )}
               <div className="text-[#6e7787]">
                 <i className="fa-regular fa-wave-pulse text-soft-blue mr-2"></i>
                 Active Users

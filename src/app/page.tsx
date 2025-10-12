@@ -149,6 +149,7 @@ export default function Home() {
             totalUsers={data?.meta?.totalUsers || 0}
             totalPokes={data?.meta?.totalPokes || 0}
             activeUsers={data?.meta?.activeUsers || 0}
+            isLoading={isLoading && !data}
           />
         </div>
       </div>
