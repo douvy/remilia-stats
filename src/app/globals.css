@@ -135,6 +135,17 @@ h4 {
         opacity: 1;
         transform: translateX(-50%) translateY(-8px);
     }
+
+    /* Tooltip below variant */
+    .tooltip-below::before {
+        bottom: auto;
+        top: 100%;
+        transform: translateX(-50%) translateY(4px);
+    }
+
+    .tooltip-below:hover::before {
+        transform: translateX(-50%) translateY(8px);
+    }
 }
 
 /* Retro VHS/CRT Effects */

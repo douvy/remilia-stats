@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import SearchModal from "./SearchModal";
 import type { ConnectionStatus } from "@/types/api";
 import type { UserStats } from "@/types/remilia";
@@ -20,9 +21,11 @@ export default function Header({
   users,
   connectionStatus = "connecting",
 }: HeaderProps) {
+  const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [isNavigatingToRandom, setIsNavigatingToRandom] = useState(false);
 
   // Ensure hydration matching by only showing client-side elements after mounting
   useEffect(() => {
@@ -65,6 +68,29 @@ export default function Header({
     setIsMobileMenuOpen((prev) => !prev);
   };
 
+  // Handle random profile navigation
+  const handleRandomProfile = useCallback(async () => {
+    if (isNavigatingToRandom) return;
+
+    setIsNavigatingToRandom(true);
+
+    try {
+      const res = await fetch('/api/random');
+      if (!res.ok) throw new Error('Failed to fetch random profile');
+
+      const { username } = await res.json();
+
+      // Navigate immediately - profile page handles its own loading state
+      router.push(`/${username}`);
+    } catch (error) {
+      console.error('Random profile failed:', error);
+      // Fallback: redirect to leaderboard
+      router.push('/');
+    } finally {
+      setIsNavigatingToRandom(false);
+    }
+  }, [isNavigatingToRandom, router]);
+
   // Handle keyboard navigation
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -77,13 +103,19 @@ export default function Header({
         event.preventDefault();
         setIsSearchModalOpen(true);
       }
+
+      // Only trigger random if no modifier keys (cmd, ctrl, shift)
+      if (event.key === "r" && !isSearchModalOpen && !event.metaKey && !event.ctrlKey && !event.shiftKey) {
+        event.preventDefault();
+        handleRandomProfile();
+      }
     }
 
     document.addEventListener("keydown", handleKeyDown);
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isMobileMenuOpen, isSearchModalOpen]);
+  }, [isMobileMenuOpen, isSearchModalOpen, handleRandomProfile]);
 
   return (
     <>
@@ -151,6 +183,21 @@ export default function Header({
                 </span>
               </button>
 
+              {/* Random Profile Button */}
+              <button
+                onClick={handleRandomProfile}
+                disabled={isNavigatingToRandom}
+                className="group px-3 py-1.5 bg-[#1b1d21] hover:bg-[#25272b] border border-[#343743] rounded-md transition-all text-sm shadow-[inset_0_-2px_0_0_#282a33] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center gap-2 text-white"
+              >
+                <span>Random</span>
+                <kbd
+                  aria-hidden="true"
+                  className="h-5 px-1.5 max-w-max rounded-xs flex items-center text-[.6875rem] font-bold border leading-none bg-[#292a2c] group-hover:bg-[#25272b] border-[#353639] text-[#d2d5db] transition-colors"
+                >
+                  R
+                </kbd>
+              </button>
+
               {/* Connection Status */}
               <div className="flex items-center space-x-2 mr-4 ml-1">
                 <div className="relative">
@@ -173,7 +220,7 @@ export default function Header({
       {/* Mobile Menu Tray */}
       {isMounted && (
         <div
-          className={`fixed inset-0 z-40 bg-black/50 backdrop-blur-[1px] transition-opacity duration-300 md:hidden ${
+          className={`fixed inset-0 z-40 bg-black/50 backdrop-blur-[0.5px] transition-opacity duration-300 md:hidden ${
             isMobileMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
           }`}
           onClick={(e) => {
@@ -183,7 +230,7 @@ export default function Header({
           }}
         >
           <div
-            className={`select-none absolute bottom-0 left-0 right-0 bg-[#1c1e23] rounded-t-xl transition-transform duration-300 ease-in-out transform ${
+            className={`select-none absolute bottom-0 left-0 right-0 bg-[#121417] rounded-t-xl transition-transform duration-300 ease-in-out transform ${
               isMobileMenuOpen ? "translate-y-0" : "translate-y-full"
             }`}
           >
@@ -198,19 +245,15 @@ export default function Header({
               >
                 <div className="flex items-center gap-3">
                   <i
-                    className="fa-regular fa-magnifying-glass text-primary-green"
+                    className="fa-regular fa-magnifying-glass text-white"
                     aria-hidden="true"
                   ></i>
                   <span className="text-[#b8bdc7]">Search</span>
-                </div>
-                <div className="h-5 px-1.5 max-w-max rounded-sm flex items-center gap-0.5 text-[.6875rem] font-bold text-gray-500 border border-gray-500/20 bg-gray-50/5">
-                  /
                 </div>
               </div>
 
               {/* Connection Status */}
               <div className="flex items-center gap-3">
-                <span className="text-blue-500">📡</span>
                 <div className="flex items-center space-x-2">
                   <div className="relative">
                     <div
@@ -226,8 +269,21 @@ export default function Header({
                 </div>
               </div>
 
-              {/* Close Button */}
-              <div className="pt-2 border-t border-divider">
+              {/* Action Buttons */}
+              <div className="pt-4 border-t border-divider space-y-2">
+                {/* Random Profile Button */}
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    handleRandomProfile();
+                  }}
+                  disabled={isNavigatingToRandom}
+                  className="group w-full px-3 py-1.5 bg-[#1b1d21] hover:bg-[#25272b] border border-[#343743] rounded-md transition-all text-sm shadow-[inset_0_-2px_0_0_#282a33] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 text-white"
+                >
+                  <span>Random</span>
+                </button>
+
+                {/* Close Button */}
                 <button
                   type="button"
                   onClick={() => setIsMobileMenuOpen(false)}
