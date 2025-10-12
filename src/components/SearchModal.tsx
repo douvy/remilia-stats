@@ -115,12 +115,14 @@ export default function SearchModal({
   const [topBeetles, setTopBeetles] = useState<UserStats[]>([]);
   const [topPokes, setTopPokes] = useState<UserStats[]>([]);
   const [topSocialCredit, setTopSocialCredit] = useState<UserStats[]>([]);
+  const [isLoadingLeaderboards, setIsLoadingLeaderboards] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
 
     // Fetch top 5 for each category
     const fetchTopLeaderboards = async () => {
+      setIsLoadingLeaderboards(true);
       try {
         const [beetlesRes, pokesRes, socialCreditRes] = await Promise.all([
           fetch('/api/leaderboard?sortBy=beetles&sortDirection=desc&limit=5&page=1'),
@@ -139,6 +141,8 @@ export default function SearchModal({
         setTopSocialCredit(socialCreditData.users || []);
       } catch (error) {
         console.error('Failed to fetch top leaderboards:', error);
+      } finally {
+        setIsLoadingLeaderboards(false);
       }
     };
 
@@ -186,6 +190,18 @@ export default function SearchModal({
   }, [searchQuery]);
 
   if (!isOpen) return null;
+
+  // Skeleton row component for loading state
+  const SkeletonRow = () => (
+    <div className="px-2 py-2.5 rounded flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <div className="w-3 h-4 bg-[#23252a] rounded animate-pulse"></div>
+        <div className="w-6 h-6 bg-[#23252a] rounded-sm animate-pulse"></div>
+        <div className="h-4 w-24 bg-[#23252a] rounded animate-pulse"></div>
+      </div>
+      <div className="h-4 w-12 bg-[#23252a] rounded animate-pulse"></div>
+    </div>
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center md:pt-32 md:px-4 overflow-y-auto bg-black/30">
@@ -293,35 +309,43 @@ export default function SearchModal({
                   Beetles
                 </h3>
                 <div className="mt-1 space-y-0.5">
-                  {topBeetles.map((user, index) => {
-                    return (
-                      <div
-                        key={user.username}
-                        className="px-2 py-2.5 rounded flex items-center justify-between cursor-pointer hover:bg-[#23252a]"
-                        onClick={() => handleUserClick(user.username)}
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="text-blue-400 text-sm">
-                            {index + 1}
-                          </span>
-                          <img
-                            src={user.pfpUrl}
-                            alt={user.displayName}
-                            className="w-6 h-6 rounded-sm"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = "/nopfp.png";
-                            }}
-                          />
-                          <span className="text-white text-sm">
-                            {user.username}
+                  {isLoadingLeaderboards ? (
+                    <>
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <SkeletonRow key={i} />
+                      ))}
+                    </>
+                  ) : (
+                    topBeetles.map((user, index) => {
+                      return (
+                        <div
+                          key={user.username}
+                          className="px-2 py-2.5 rounded flex items-center justify-between cursor-pointer hover:bg-[#23252a]"
+                          onClick={() => handleUserClick(user.username)}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-blue-400 text-sm">
+                              {index + 1}
+                            </span>
+                            <img
+                              src={user.pfpUrl}
+                              alt={user.displayName}
+                              className="w-6 h-6 rounded-sm"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = "/nopfp.png";
+                              }}
+                            />
+                            <span className="text-white text-sm">
+                              {user.username}
+                            </span>
+                          </div>
+                          <span className="text-[#b8bdc7] text-sm">
+                            {user.beetles.toLocaleString()}
                           </span>
                         </div>
-                        <span className="text-[#b8bdc7] text-sm">
-                          {user.beetles.toLocaleString()}
-                        </span>
-                      </div>
-                    );
-                  })}
+                      );
+                    })
+                  )}
                 </div>
               </div>
               <div className="border-t border-[#23252a] w-full"></div>
@@ -334,35 +358,43 @@ export default function SearchModal({
                   Pokes
                 </h3>
                 <div className="mt-1 space-y-0.5">
-                  {topPokes.map((user, index) => {
-                    return (
-                      <div
-                        key={user.username}
-                        className="px-2 py-2.5 rounded flex items-center justify-between cursor-pointer hover:bg-[#23252a]"
-                        onClick={() => handleUserClick(user.username)}
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="text-blue-400 text-sm">
-                            {index + 1}
-                          </span>
-                          <img
-                            src={user.pfpUrl}
-                            alt={user.displayName}
-                            className="w-6 h-6 rounded-sm"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = "/nopfp.png";
-                            }}
-                          />
-                          <span className="text-white text-sm">
-                            {user.username}
+                  {isLoadingLeaderboards ? (
+                    <>
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <SkeletonRow key={i} />
+                      ))}
+                    </>
+                  ) : (
+                    topPokes.map((user, index) => {
+                      return (
+                        <div
+                          key={user.username}
+                          className="px-2 py-2.5 rounded flex items-center justify-between cursor-pointer hover:bg-[#23252a]"
+                          onClick={() => handleUserClick(user.username)}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-blue-400 text-sm">
+                              {index + 1}
+                            </span>
+                            <img
+                              src={user.pfpUrl}
+                              alt={user.displayName}
+                              className="w-6 h-6 rounded-sm"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = "/nopfp.png";
+                              }}
+                            />
+                            <span className="text-white text-sm">
+                              {user.username}
+                            </span>
+                          </div>
+                          <span className="text-[#b8bdc7] text-sm">
+                            {user.pokes.toLocaleString()}
                           </span>
                         </div>
-                        <span className="text-[#b8bdc7] text-sm">
-                          {user.pokes.toLocaleString()}
-                        </span>
-                      </div>
-                    );
-                  })}
+                      );
+                    })
+                  )}
                 </div>
               </div>
               <div className="border-t border-[#23252a] w-full"></div>
@@ -375,35 +407,43 @@ export default function SearchModal({
                   Social Credit
                 </h3>
                 <div className="mt-1 space-y-0.5">
-                  {topSocialCredit.map((user, index) => {
-                    return (
-                      <div
-                        key={user.username}
-                        className="px-2 py-2.5 rounded flex items-center justify-between cursor-pointer hover:bg-[#23252a]"
-                        onClick={() => handleUserClick(user.username)}
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="text-blue-400 text-sm">
-                            {index + 1}
-                          </span>
-                          <img
-                            src={user.pfpUrl}
-                            alt={user.displayName}
-                            className="w-6 h-6 rounded-sm"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = "/nopfp.png";
-                            }}
-                          />
-                          <span className="text-white text-sm">
-                            {user.username}
+                  {isLoadingLeaderboards ? (
+                    <>
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <SkeletonRow key={i} />
+                      ))}
+                    </>
+                  ) : (
+                    topSocialCredit.map((user, index) => {
+                      return (
+                        <div
+                          key={user.username}
+                          className="px-2 py-2.5 rounded flex items-center justify-between cursor-pointer hover:bg-[#23252a]"
+                          onClick={() => handleUserClick(user.username)}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-blue-400 text-sm">
+                              {index + 1}
+                            </span>
+                            <img
+                              src={user.pfpUrl}
+                              alt={user.displayName}
+                              className="w-6 h-6 rounded-sm"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = "/nopfp.png";
+                              }}
+                            />
+                            <span className="text-white text-sm">
+                              {user.username}
+                            </span>
+                          </div>
+                          <span className="text-[#b8bdc7] text-sm">
+                            {user.socialCredit.toLocaleString()}
                           </span>
                         </div>
-                        <span className="text-[#b8bdc7] text-sm">
-                          {user.socialCredit.toLocaleString()}
-                        </span>
-                      </div>
-                    );
-                  })}
+                      );
+                    })
+                  )}
                 </div>
               </div>
               <div className="h-2"></div> {/* Bottom spacing */}
