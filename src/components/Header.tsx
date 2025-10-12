@@ -26,6 +26,7 @@ export default function Header({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [showBeetleAnimation, setShowBeetleAnimation] = useState(false);
+  const [beetleVariant, setBeetleVariant] = useState<'pond' | 'ladybug' | 'green'>('pond');
 
   // Ensure hydration matching by only showing client-side elements after mounting
   useEffect(() => {
@@ -36,17 +37,29 @@ export default function Header({
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const wasRandomNav = sessionStorage.getItem('randomNav');
-    if (wasRandomNav === 'true' && window.innerWidth >= 768) {
-      sessionStorage.removeItem('randomNav');
-      setShowBeetleAnimation(true);
+    try {
+      const wasRandomNav = sessionStorage.getItem('randomNav');
+      const variant = sessionStorage.getItem('beetleVariant') as 'pond' | 'ladybug' | 'green' | null;
 
-      // Play animation for 1.5s
-      const timer = setTimeout(() => {
-        setShowBeetleAnimation(false);
-      }, 1500);
+      if (wasRandomNav === 'true' && window.innerWidth >= 768) {
+        sessionStorage.removeItem('randomNav');
+        sessionStorage.removeItem('beetleVariant');
 
-      return () => clearTimeout(timer);
+        if (variant) {
+          setBeetleVariant(variant);
+        }
+        setShowBeetleAnimation(true);
+
+        // Play animation for 1.5s
+        const timer = setTimeout(() => {
+          setShowBeetleAnimation(false);
+        }, 1500);
+
+        return () => clearTimeout(timer);
+      }
+    } catch (error) {
+      // sessionStorage can throw in private browsing mode
+      console.warn('sessionStorage access failed:', error);
     }
   }, []);
 
@@ -96,7 +109,15 @@ export default function Header({
 
       // Set flag for destination page to play animation (desktop only)
       if (window.innerWidth >= 768) {
-        sessionStorage.setItem('randomNav', 'true');
+        try {
+          // Randomize beetle variant
+          const variants = ['pond', 'ladybug', 'green'] as const;
+          const variant = variants[Math.floor(Math.random() * variants.length)];
+          sessionStorage.setItem('randomNav', 'true');
+          sessionStorage.setItem('beetleVariant', variant);
+        } catch (error) {
+          // sessionStorage can throw in private browsing mode - graceful degradation
+        }
       }
 
       // Navigate immediately
@@ -138,7 +159,7 @@ export default function Header({
         {/* Scurrying Beetle in Header - Desktop only */}
         {showBeetleAnimation && (
           <img
-            src="/assets/img/beetle-pond.png"
+            src={`/assets/img/beetle-${beetleVariant}.png`}
             alt=""
             className="hidden md:block absolute top-1/2 md:right-[320px] w-8 h-8 animate-beetle-scurry pointer-events-none z-0"
           />
