@@ -238,21 +238,41 @@ export default async function computeBeetlesLeaderboard(): Promise<LeaderboardUs
 
     await redis.set('beetles-leaderboard-meta', JSON.stringify(metadata), { ex: 86400 });
 
-    // Clear all profile caches to ensure sync
-    console.log('🗑️ Clearing profile caches...');
+    // Clear profile caches in batches to avoid timeout
+    console.log('🗑️ Clearing profile caches in batches...');
+    const DELETE_BATCH_SIZE = 500; // Delete this many keys at once
+    const BATCH_DELAY_MS = 100; // Small delay between batches
     let cursor = 0;
     let totalCleared = 0;
+    let deletionBatch: string[] = [];
 
     do {
-      const result = await redis.scan(cursor, { match: 'profile:*', count: 100 });
+      // Scan for keys - get up to 1000 at a time
+      const result = await redis.scan(cursor, { match: 'profile:*', count: 1000 });
       cursor = result[0];
       const keys = result[1];
 
-      if (keys.length > 0) {
-        await redis.del(...keys);
-        totalCleared += keys.length;
+      deletionBatch.push(...keys);
+
+      // Delete in batches of DELETE_BATCH_SIZE
+      while (deletionBatch.length >= DELETE_BATCH_SIZE) {
+        const toDelete = deletionBatch.splice(0, DELETE_BATCH_SIZE);
+        await redis.del(...toDelete);
+        totalCleared += toDelete.length;
+        console.log(`   Cleared ${totalCleared} caches...`);
+
+        // Small delay to avoid overwhelming Redis
+        if (deletionBatch.length > 0 || cursor !== 0) {
+          await new Promise(resolve => setTimeout(resolve, BATCH_DELAY_MS));
+        }
       }
     } while (cursor !== 0);
+
+    // Clear any remaining keys
+    if (deletionBatch.length > 0) {
+      await redis.del(...deletionBatch);
+      totalCleared += deletionBatch.length;
+    }
 
     console.log(`✅ Cleared ${totalCleared} profile caches`);
 
