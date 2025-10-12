@@ -32,6 +32,24 @@ export default function Header({
     setIsMounted(true);
   }, []);
 
+  // Check for random navigation flag on mount (desktop only)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const wasRandomNav = sessionStorage.getItem('randomNav');
+    if (wasRandomNav === 'true' && window.innerWidth >= 768) {
+      sessionStorage.removeItem('randomNav');
+      setIsNavigatingToRandom(true);
+
+      // Play animation for 1.5s
+      const timer = setTimeout(() => {
+        setIsNavigatingToRandom(false);
+      }, 1500);
+
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
   // Connection status helper
   const getConnectionConfig = (status: ConnectionStatus) => {
     switch (status) {
@@ -72,34 +90,21 @@ export default function Header({
   const handleRandomProfile = useCallback(async () => {
     if (isNavigatingToRandom) return;
 
-    setIsNavigatingToRandom(true);
-
     try {
       // Fetch random username
       const res = await fetch('/api/random');
       if (!res.ok) throw new Error('Failed to fetch random profile');
       const { username } = await res.json();
 
-      // Check if desktop (animation) or mobile (instant)
-      const isDesktop = window.innerWidth >= 768;
-
-      if (isDesktop) {
-        // Desktop: Preload profile data while animation plays
-        const [_] = await Promise.all([
-          fetch(`/api/profile/${username}`), // Preload profile
-          new Promise(resolve => setTimeout(resolve, 1500)) // Animation
-        ]);
-      } else {
-        // Mobile: Preload and navigate immediately
-        await fetch(`/api/profile/${username}`);
+      // Set flag for destination page to play animation (desktop only)
+      if (window.innerWidth >= 768) {
+        sessionStorage.setItem('randomNav', 'true');
       }
 
+      // Navigate immediately
       router.push(`/${username}`);
-      setIsNavigatingToRandom(false);
     } catch (error) {
       console.error('Random profile failed:', error);
-      router.push('/');
-      setIsNavigatingToRandom(false);
     }
   }, [isNavigatingToRandom, router]);
 
