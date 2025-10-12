@@ -240,16 +240,21 @@ export default async function computeBeetlesLeaderboard(): Promise<LeaderboardUs
 
     // Clear all profile caches to ensure sync
     console.log('🗑️ Clearing profile caches...');
-    try {
-      const profileKeys = await redis.keys('profile:*');
-      if (profileKeys.length > 0) {
-        await redis.del(...profileKeys);
-        console.log(`✅ Cleared ${profileKeys.length} profile caches`);
+    let cursor = 0;
+    let totalCleared = 0;
+
+    do {
+      const result = await redis.scan(cursor, { match: 'profile:*', count: 100 });
+      cursor = result[0];
+      const keys = result[1];
+
+      if (keys.length > 0) {
+        await redis.del(...keys);
+        totalCleared += keys.length;
       }
-    } catch (cacheError) {
-      console.warn('⚠️ Failed to clear profile caches:', cacheError);
-      // Non-critical, continue
-    }
+    } while (cursor !== 0);
+
+    console.log(`✅ Cleared ${totalCleared} profile caches`);
 
     // Final logging
     const duration = (Date.now() - metrics.startTime) / 1000;
