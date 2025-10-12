@@ -450,7 +450,7 @@ export default function UserProfilePage() {
                   href={`https://remilia.com/~${profile.username}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block mt-6 px-4 py-2 bg-primary-blue text-[#f1f2f4] rounded-md text-center hover:bg-primary-dark-blue transition-colors shadow-[inset_0_-2px_0_0_#16368e] hover:shadow-[inset_0_-2px_0_0_#0d1b45]"
+                  className="inline-block mt-6 px-3 py-2 bg-primary-blue text-[#f1f2f4] rounded-md hover:bg-primary-dark-blue transition-colors shadow-[inset_0_-2px_0_0_#16368e] hover:shadow-[inset_0_-2px_0_0_#0d1b45] text-sm"
                 >
                   View on RemiliaNET
                 </a>
