@@ -171,19 +171,52 @@ export default function ShareStatsModal({
       });
     });
 
+    // Preload and convert background images (including gifs) to data URLs
     const elementsWithBg = element.querySelectorAll('[style*="background-image"]');
-    elementsWithBg.forEach((el) => {
-      const element = el as HTMLElement;
-      const bgImage = element.style.backgroundImage;
-      if (bgImage?.includes('url(')) {
-        const urlMatch = bgImage.match(/url\(['"]?([^'"]+)['"]?\)/);
-        if (urlMatch?.[1] && !urlMatch[1].startsWith('data:') && !urlMatch[1].startsWith('/api/proxy-image')) {
-          element.style.backgroundImage = `url(/api/proxy-image?url=${encodeURIComponent(urlMatch[1])})`;
+    const bgPromises = Array.from(elementsWithBg).map((el) => {
+      return new Promise<void>((resolve) => {
+        const element = el as HTMLElement;
+        const bgImage = element.style.backgroundImage;
+        if (bgImage?.includes('url(')) {
+          const urlMatch = bgImage.match(/url\(['"]?([^'"]+)['"]?\)/);
+          if (urlMatch?.[1] && !urlMatch[1].startsWith('data:')) {
+            const originalUrl = urlMatch[1];
+            const proxyUrl = originalUrl.startsWith('/api/proxy-image')
+              ? originalUrl
+              : `/api/proxy-image?url=${encodeURIComponent(originalUrl)}`;
+
+            // Load the image and convert to data URL to avoid async loading during canvas render
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+              try {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                const ctx = canvas.getContext('2d');
+                if (ctx) {
+                  ctx.drawImage(img, 0, 0);
+                  const dataUrl = canvas.toDataURL('image/png');
+                  element.style.backgroundImage = `url(${dataUrl})`;
+                }
+                resolve();
+              } catch (error) {
+                console.error('Failed to convert background to data URL:', error);
+                resolve();
+              }
+            };
+            img.onerror = () => resolve();
+            img.src = proxyUrl;
+          } else {
+            resolve();
+          }
+        } else {
+          resolve();
         }
-      }
+      });
     });
 
-    await Promise.all(imagePromises);
+    await Promise.all([...imagePromises, ...bgPromises]);
   };
 
   const applyHtml2CanvasFixes = (element: HTMLElement) => {
