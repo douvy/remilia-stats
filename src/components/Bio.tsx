@@ -58,7 +58,7 @@ export default function Bio({
           </div>
         )}
       </div>
-      <p className="text-[#b8bdc7] whitespace-pre-wrap">{bio}</p>
+      <p className="text-[#b8bdc7] whitespace-pre-wrap break-words overflow-wrap-anywhere">{bio}</p>
     </div>
   );
 }
