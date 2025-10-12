@@ -102,6 +102,11 @@ async function getAllUsers(): Promise<string[]> {
     .map((friend: any) => friend.displayUsername)
     .filter((username: string) => username && username.trim());
 
+  // Ensure seed user is included (may not be in their own friends list)
+  if (!usernames.includes('remilia_jackson')) {
+    usernames.push('remilia_jackson');
+  }
+
   console.log(`✅ Found ${usernames.length} users to process`);
   return usernames;
 }

@@ -94,12 +94,16 @@ export async function GET(request: NextRequest) {
     // Get the page of users
     const users = filteredUsers.slice(startIndex, endIndex);
 
-    // Use pre-calculated ranks based on sort field
+    // Preserve all rank fields and set primary display rank based on sort field
     const rankedUsers = users.map((user: any) => ({
       ...user,
-      rank: sortBy === 'pokes' ? user.pokesRank :
-            sortBy === 'socialCredit' ? user.socialCreditRank :
-            user.rank // beetles rank (default)
+      rank: user.rank, // beetles rank
+      pokesRank: user.pokesRank,
+      socialCreditRank: user.socialCreditRank,
+      // Set display rank based on current sort
+      displayRank: sortBy === 'pokes' ? user.pokesRank :
+                   sortBy === 'socialCredit' ? user.socialCreditRank :
+                   user.rank
     }));
 
     return NextResponse.json({

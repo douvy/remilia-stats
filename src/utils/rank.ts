@@ -8,10 +8,8 @@ export const getRankDisplay = (rank: number, totalUsers?: number) => {
   // Determine tier and color
   let tierColor = "text-[#979ba3]"; // Default gray
 
-  if (rank <= 10) {
-    tierColor = "text-soft-lime-green"; // Lime green for top 10
-  } else if (rank <= 50) {
-    tierColor = "text-yellow"; // Yellow for top 50
+  if (rank <= 50) {
+    tierColor = "text-soft-lime-green"; // Lime green for top 50
   }
 
   return {
