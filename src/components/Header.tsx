@@ -75,18 +75,22 @@ export default function Header({
     setIsNavigatingToRandom(true);
 
     try {
+      // Fetch random username
       const res = await fetch('/api/random');
       if (!res.ok) throw new Error('Failed to fetch random profile');
-
       const { username } = await res.json();
 
-      // Navigate immediately - profile page handles its own loading state
+      // Preload profile data while animation plays
+      const [_] = await Promise.all([
+        fetch(`/api/profile/${username}`), // Preload profile
+        new Promise(resolve => setTimeout(resolve, 1500)) // Animation
+      ]);
+
       router.push(`/${username}`);
+      setIsNavigatingToRandom(false);
     } catch (error) {
       console.error('Random profile failed:', error);
-      // Fallback: redirect to leaderboard
       router.push('/');
-    } finally {
       setIsNavigatingToRandom(false);
     }
   }, [isNavigatingToRandom, router]);
@@ -119,7 +123,15 @@ export default function Header({
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-[#15171a] border-b border-[#1b2028]">
+      <header className="sticky top-0 z-50 bg-[#15171a] border-b border-[#1b2028] relative overflow-hidden">
+        {/* Scurrying Beetle in Header */}
+        {isNavigatingToRandom && (
+          <img
+            src="/assets/img/beetle-pond.png"
+            alt=""
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 md:left-auto md:right-[320px] md:translate-x-0 w-8 h-8 animate-beetle-scurry pointer-events-none z-0"
+          />
+        )}
         <div className="container mx-auto px-4 py-3">
           <div className="relative flex items-center w-full">
             {/* Logo and Brand Name */}
@@ -187,7 +199,7 @@ export default function Header({
               <button
                 onClick={handleRandomProfile}
                 disabled={isNavigatingToRandom}
-                className="group px-3 py-1.5 bg-[#1b1d21] hover:bg-[#25272b] border border-[#343743] rounded-md transition-all text-sm shadow-[inset_0_-2px_0_0_#282a33] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center gap-2 text-white"
+                className="group px-3 py-1.5 bg-[#1b1d21] hover:bg-[#25272b] border border-[#343743] rounded-md transition-all text-sm shadow-[inset_0_-2px_0_0_#282a33] disabled:cursor-not-allowed cursor-pointer flex items-center gap-2 text-white"
               >
                 <span>Random</span>
                 <kbd
@@ -278,7 +290,7 @@ export default function Header({
                     handleRandomProfile();
                   }}
                   disabled={isNavigatingToRandom}
-                  className="group w-full px-3 py-1.5 bg-[#1b1d21] hover:bg-[#25272b] border border-[#343743] rounded-md transition-all text-sm shadow-[inset_0_-2px_0_0_#282a33] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 text-white"
+                  className="group w-full px-3 py-1.5 bg-[#1b1d21] hover:bg-[#25272b] border border-[#343743] rounded-md transition-all text-sm shadow-[inset_0_-2px_0_0_#282a33] disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 text-white"
                 >
                   <span>Random</span>
                 </button>

@@ -175,3 +175,51 @@ h4 {
         transform: translate(0, 0);
     }
 }
+
+@keyframes beetle-scurry {
+    0% {
+        transform: translate(0, -50%);
+        opacity: 1;
+    }
+    45% {
+        transform: translate(-35px, -50%);
+        opacity: 1;
+    }
+    55% {
+        transform: translate(-35px, -50%);
+        opacity: 1;
+    }
+    95% {
+        transform: translate(0, -50%);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(0, -50%);
+        opacity: 0;
+    }
+}
+
+@keyframes beetle-scurry-mobile {
+    0% {
+        transform: translate(0, -50%);
+        opacity: 1;
+    }
+    80% {
+        transform: translate(-200px, -50%);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-200px, -50%);
+        opacity: 0;
+    }
+}
+
+.animate-beetle-scurry {
+    animation: beetle-scurry 1.5s ease-in-out forwards;
+}
+
+@media (max-width: 768px) {
+    .animate-beetle-scurry {
+        animation: beetle-scurry-mobile 1.5s ease-out forwards;
+    }
+}
