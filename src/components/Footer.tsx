@@ -4,7 +4,7 @@ export default function Footer() {
       <div className="container mx-auto px-4 text-center">
         <a
           href="https://github.com/douvy/remilia-stats"
-          className="text-[#b8bdc7] hover:text-white transition-colors border-b border-[#2d323b] pb-[1px] hover:border-[#b8bdc7]"
+          className="text-soft-blue underline decoration-[#2f3847] hover:decoration-[#5584cf] transition-colors"
           target="_blank"
           rel="noopener noreferrer"
         >
