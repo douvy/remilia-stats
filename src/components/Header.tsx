@@ -26,7 +26,7 @@ export default function Header({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [showBeetleAnimation, setShowBeetleAnimation] = useState(false);
-  const [beetleVariant, setBeetleVariant] = useState<'pond' | 'ladybug' | 'green'>('pond');
+  const [beetleVariant, setBeetleVariant] = useState<'pond' | 'ladybug' | 'green' | 'golden-scarab'>('pond');
 
   // Ensure hydration matching by only showing client-side elements after mounting
   useEffect(() => {
@@ -39,7 +39,7 @@ export default function Header({
 
     try {
       const wasRandomNav = sessionStorage.getItem('randomNav');
-      const variant = sessionStorage.getItem('beetleVariant') as 'pond' | 'ladybug' | 'green' | null;
+      const variant = sessionStorage.getItem('beetleVariant') as 'pond' | 'ladybug' | 'green' | 'golden-scarab' | null;
 
       if (wasRandomNav === 'true' && window.innerWidth >= 768) {
         sessionStorage.removeItem('randomNav');
@@ -50,10 +50,10 @@ export default function Header({
         }
         setShowBeetleAnimation(true);
 
-        // Play animation for 1.5s
+        // Play animation for 2s
         const timer = setTimeout(() => {
           setShowBeetleAnimation(false);
-        }, 1500);
+        }, 2000);
 
         return () => clearTimeout(timer);
       }
@@ -81,7 +81,7 @@ export default function Header({
       case "connecting":
         return {
           bgColor: "bg-yellow-500",
-          text: "Connecting...",
+          text: "Status",
           textColor: "text-silver-gray",
         };
       default:
@@ -111,7 +111,7 @@ export default function Header({
       if (window.innerWidth >= 768) {
         try {
           // Randomize beetle variant
-          const variants = ['pond', 'ladybug', 'green'] as const;
+          const variants = ['pond', 'ladybug', 'green', 'golden-scarab'] as const;
           const variant = variants[Math.floor(Math.random() * variants.length)];
           sessionStorage.setItem('randomNav', 'true');
           sessionStorage.setItem('beetleVariant', variant);
@@ -242,7 +242,7 @@ export default function Header({
               </button>
 
               {/* Connection Status */}
-              <div className="flex items-center space-x-2 mr-4 ml-1">
+              <div className="flex items-center space-x-2 mr-4 ml-1 min-w-[105px]">
                 <div className="relative">
                   <div
                     className={`h-2.5 w-2.5 rounded-full ${connectionConfig.bgColor}`}

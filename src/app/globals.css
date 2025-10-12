@@ -182,11 +182,11 @@ h4 {
         opacity: 1;
     }
     45% {
-        transform: translate(-35px, -50%);
+        transform: translate(-55px, -50%);
         opacity: 1;
     }
     55% {
-        transform: translate(-35px, -50%);
+        transform: translate(-55px, -50%);
         opacity: 1;
     }
     95% {
@@ -215,11 +215,11 @@ h4 {
 }
 
 .animate-beetle-scurry {
-    animation: beetle-scurry 1.5s ease-in-out forwards;
+    animation: beetle-scurry 2s ease-in-out forwards;
 }
 
 @media (max-width: 768px) {
     .animate-beetle-scurry {
-        animation: beetle-scurry-mobile 1.5s ease-out forwards;
+        animation: beetle-scurry-mobile 2s ease-out forwards;
     }
 }
