@@ -80,11 +80,19 @@ export default function Header({
       if (!res.ok) throw new Error('Failed to fetch random profile');
       const { username } = await res.json();
 
-      // Preload profile data while animation plays
-      const [_] = await Promise.all([
-        fetch(`/api/profile/${username}`), // Preload profile
-        new Promise(resolve => setTimeout(resolve, 1500)) // Animation
-      ]);
+      // Check if desktop (animation) or mobile (instant)
+      const isDesktop = window.innerWidth >= 768;
+
+      if (isDesktop) {
+        // Desktop: Preload profile data while animation plays
+        const [_] = await Promise.all([
+          fetch(`/api/profile/${username}`), // Preload profile
+          new Promise(resolve => setTimeout(resolve, 1500)) // Animation
+        ]);
+      } else {
+        // Mobile: Preload and navigate immediately
+        await fetch(`/api/profile/${username}`);
+      }
 
       router.push(`/${username}`);
       setIsNavigatingToRandom(false);
@@ -124,12 +132,12 @@ export default function Header({
   return (
     <>
       <header className="sticky top-0 z-50 bg-[#15171a] border-b border-[#1b2028] relative overflow-hidden">
-        {/* Scurrying Beetle in Header */}
+        {/* Scurrying Beetle in Header - Desktop only */}
         {isNavigatingToRandom && (
           <img
             src="/assets/img/beetle-pond.png"
             alt=""
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 md:left-auto md:right-[320px] md:translate-x-0 w-8 h-8 animate-beetle-scurry pointer-events-none z-0"
+            className="hidden md:block absolute top-1/2 md:right-[320px] w-8 h-8 animate-beetle-scurry pointer-events-none z-0"
           />
         )}
         <div className="container mx-auto px-4 py-3">
