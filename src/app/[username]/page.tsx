@@ -255,7 +255,7 @@ export default function UserProfilePage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Left Column - Profile Card & Stats */}
             <div className="space-y-6">
-              <div className="relative bg-[#181a1f] border border-[#2d323b] shadow-[inset_0_-2px_0_0_#23252a] rounded-lg p-5 overflow-hidden">
+              <div className="relative bg-[#181a1f] border border-[#2d323b] shadow-[inset_0_-2px_0_0_#23252a] rounded-lg px-5 py-2 overflow-hidden">
                 {profile.cover && (
                   <>
                     {/* Base Cover Image */}
@@ -306,7 +306,7 @@ export default function UserProfilePage() {
                   <img
                     src={profile.pfpUrl}
                     alt={profile.displayName}
-                    className="w-40 h-40 rounded-lg flex-shrink-0"
+                    className="w-36 h-36 rounded-lg flex-shrink-0"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src =
                         "/assets/img/nopfp.png";
