@@ -25,7 +25,7 @@ export default function Header({
   const [isMounted, setIsMounted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-  const [isNavigatingToRandom, setIsNavigatingToRandom] = useState(false);
+  const [showBeetleAnimation, setShowBeetleAnimation] = useState(false);
 
   // Ensure hydration matching by only showing client-side elements after mounting
   useEffect(() => {
@@ -39,11 +39,11 @@ export default function Header({
     const wasRandomNav = sessionStorage.getItem('randomNav');
     if (wasRandomNav === 'true' && window.innerWidth >= 768) {
       sessionStorage.removeItem('randomNav');
-      setIsNavigatingToRandom(true);
+      setShowBeetleAnimation(true);
 
       // Play animation for 1.5s
       const timer = setTimeout(() => {
-        setIsNavigatingToRandom(false);
+        setShowBeetleAnimation(false);
       }, 1500);
 
       return () => clearTimeout(timer);
@@ -88,8 +88,6 @@ export default function Header({
 
   // Handle random profile navigation
   const handleRandomProfile = useCallback(async () => {
-    if (isNavigatingToRandom) return;
-
     try {
       // Fetch random username
       const res = await fetch('/api/random');
@@ -106,7 +104,7 @@ export default function Header({
     } catch (error) {
       console.error('Random profile failed:', error);
     }
-  }, [isNavigatingToRandom, router]);
+  }, [router]);
 
   // Handle keyboard navigation
   useEffect(() => {
@@ -138,7 +136,7 @@ export default function Header({
     <>
       <header className="sticky top-0 z-50 bg-[#15171a] border-b border-[#1b2028] relative overflow-hidden">
         {/* Scurrying Beetle in Header - Desktop only */}
-        {isNavigatingToRandom && (
+        {showBeetleAnimation && (
           <img
             src="/assets/img/beetle-pond.png"
             alt=""
@@ -211,8 +209,7 @@ export default function Header({
               {/* Random Profile Button */}
               <button
                 onClick={handleRandomProfile}
-                disabled={isNavigatingToRandom}
-                className="group px-3 py-1.5 bg-[#1b1d21] hover:bg-[#25272b] border border-[#343743] rounded-md transition-all text-sm shadow-[inset_0_-2px_0_0_#282a33] disabled:cursor-not-allowed cursor-pointer flex items-center gap-2 text-white"
+                className="group px-3 py-1.5 bg-[#1b1d21] hover:bg-[#25272b] border border-[#343743] rounded-md transition-all text-sm shadow-[inset_0_-2px_0_0_#282a33] cursor-pointer flex items-center gap-2 text-white"
               >
                 <span>Random</span>
                 <kbd
@@ -302,8 +299,7 @@ export default function Header({
                     setIsMobileMenuOpen(false);
                     handleRandomProfile();
                   }}
-                  disabled={isNavigatingToRandom}
-                  className="group w-full px-3 py-1.5 bg-[#1b1d21] hover:bg-[#25272b] border border-[#343743] rounded-md transition-all text-sm shadow-[inset_0_-2px_0_0_#282a33] disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 text-white"
+                  className="group w-full px-3 py-1.5 bg-[#1b1d21] hover:bg-[#25272b] border border-[#343743] rounded-md transition-all text-sm shadow-[inset_0_-2px_0_0_#282a33] cursor-pointer flex items-center justify-center gap-2 text-white"
                 >
                   <span>Random</span>
                 </button>
