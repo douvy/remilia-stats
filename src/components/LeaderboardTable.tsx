@@ -132,7 +132,7 @@ export default function LeaderboardTable({
               <tr
                 key={user.username}
                 onClick={() => onUserClick(user.username)}
-                className="bg-[#171924] hover:bg-[#1a1d2a] transition-colors cursor-pointer"
+                className="bg-background hover:bg-[#171c29] transition-colors cursor-pointer"
               >
                 <td className="py-3 px-6 text-sm font-medium text-white">
                   {user.rank}

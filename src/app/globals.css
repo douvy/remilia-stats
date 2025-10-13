@@ -44,6 +44,7 @@
     --color-card-bg-hover: #1b1c21;
     --color-input-bg: #1e2026;
     --color-divider: #2a2d33;
+    --color-background: #14161f;
 
     --color-primary-dark-green: #006847;
     --color-primary-green: #27ad75;
@@ -118,14 +119,20 @@ h4 {
         left: 50%;
         transform: translateX(-50%) translateY(-4px);
         padding: 4px 8px;
-        background: linear-gradient(135deg, rgba(22, 26, 41, 0.98), rgba(25, 25, 30, 0.98));
+        background: linear-gradient(
+            135deg,
+            rgba(22, 26, 41, 0.98),
+            rgba(25, 25, 30, 0.98)
+        );
         color: #b8bdc7;
         font-size: 11px;
         border-radius: 4px;
         white-space: nowrap;
         opacity: 0;
         pointer-events: none;
-        transition: opacity 150ms ease-in-out, transform 150ms ease-in-out;
+        transition:
+            opacity 150ms ease-in-out,
+            transform 150ms ease-in-out;
         border: 1px solid rgba(42, 45, 51, 0.8);
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         z-index: 50;
