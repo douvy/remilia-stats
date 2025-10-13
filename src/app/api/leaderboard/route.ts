@@ -85,28 +85,20 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // Compute ranks with tie handling based on current sort
-    const getSortValue = (user: any) => {
-      if (sortBy === 'username' || sortBy === 'user') return null; // No rank for username sort
-      return user[sortBy] || 0;
-    };
+    // Map users and select appropriate rank based on sort
+    filteredUsers = filteredUsers.map((user: any) => {
+      // Use pre-computed ranks from Redis based on current sort
+      let displayRank = user.rank; // Default to beetles rank
 
-    let currentRank = 1;
-    let prevValue: number | null = null;
-
-    filteredUsers = filteredUsers.map((user: any, index: number) => {
-      const value = getSortValue(user);
-
-      // Update rank only when value changes (handles ties)
-      if (value !== null && prevValue !== null && value !== prevValue) {
-        currentRank = index + 1;
+      if (sortBy === 'pokes') {
+        displayRank = user.pokesRank || user.rank;
+      } else if (sortBy === 'socialCredit') {
+        displayRank = user.socialCreditRank || user.rank;
       }
-
-      prevValue = value;
 
       return {
         ...user,
-        rank: value !== null ? currentRank : user.rank, // Use computed rank or keep beetles rank
+        rank: displayRank, // Override rank with the one matching current sort
       };
     });
 
