@@ -27,7 +27,7 @@ export default function Achievements({
           {achievements.map((achievement) => (
             <div
               key={achievement.id}
-              className="flex gap-4 p-4 border border-[#252f43] rounded-md bg-[#141823] shadow-[0_4px_12px_rgba(24,28,41,0.5)]"
+              className="flex items-center gap-4 p-4 border border-[#252f43] rounded-md bg-[#141823] shadow-[0_4px_12px_rgba(24,28,41,0.5)]"
               style={{
                 backgroundImage: `url("data:image/svg+xml,<svg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'><rect x='0.5' y='0.5' width='1.5' height='1.5' fill='%231a2230'/></svg>")`,
               }}
@@ -41,7 +41,7 @@ export default function Achievements({
                 }}
               />
               <div className="flex-1 min-w-0">
-                <h3 className="text-white font-windsor-bold text-xs md:text-sm mb-1">
+                <h3 className="text-white font-windsor-bold text-xs md:text-sm">
                   {achievement.title}
                 </h3>
                 <p className="text-[#979ba3] text-xs hidden md:block">
