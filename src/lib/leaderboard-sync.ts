@@ -198,10 +198,32 @@ export default async function computeBeetlesLeaderboard(): Promise<LeaderboardUs
     const pokesSorted = [...allUsers].sort((a, b) => b.pokes - a.pokes);
     const socialCreditSorted = [...allUsers].sort((a, b) => b.socialCredit - a.socialCredit);
 
-    // Create rank maps
-    const beetlesRankMap = new Map(beetlesSorted.map((user, index) => [user.username, index + 1]));
-    const pokesRankMap = new Map(pokesSorted.map((user, index) => [user.username, index + 1]));
-    const socialCreditRankMap = new Map(socialCreditSorted.map((user, index) => [user.username, index + 1]));
+    // Helper to create rank map with proper tie handling (standard competition ranking)
+    const createRankMap = (sortedUsers: LeaderboardUser[], getScore: (user: LeaderboardUser) => number): Map<string, number> => {
+      const rankMap = new Map<string, number>();
+      let currentRank = 1;
+      let prevScore: number | null = null;
+
+      for (let i = 0; i < sortedUsers.length; i++) {
+        const user = sortedUsers[i];
+        const score = getScore(user);
+
+        // If score differs from previous, update rank to current position
+        if (prevScore !== null && score !== prevScore) {
+          currentRank = i + 1;
+        }
+
+        rankMap.set(user.username, currentRank);
+        prevScore = score;
+      }
+
+      return rankMap;
+    };
+
+    // Create rank maps with tie handling
+    const beetlesRankMap = createRankMap(beetlesSorted, u => u.beetles);
+    const pokesRankMap = createRankMap(pokesSorted, u => u.pokes);
+    const socialCreditRankMap = createRankMap(socialCreditSorted, u => u.socialCredit);
 
     // Add all ranks to each user
     const sortedUsers = beetlesSorted.map((user) => ({
