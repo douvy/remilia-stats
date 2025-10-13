@@ -27,7 +27,7 @@ export default function Friends({
             <div
               key={friend.displayUsername}
               onClick={() => onFriendClick(friend.displayUsername)}
-              className="relative flex items-center gap-3 p-3 bg-[#151619] border border-divider rounded-md hover:bg-[#181a1f] transition-colors cursor-pointer overflow-hidden"
+              className="relative flex items-center gap-3 p-3 bg-[#151619] border border-divider rounded-md hover:bg-[#181a1f] hover:border-[#586e8d] transition-colors cursor-pointer overflow-hidden"
             >
               {friend.cover && (
                 <>
