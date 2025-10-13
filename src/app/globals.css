@@ -89,7 +89,9 @@ h4 {
 }
 
 .bg-grid-pattern {
-    background-image: url("data:image/svg+xml,<svg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'><rect x='0.5' y='0.5' width='1.5' height='1.5' fill='%231a1f2e'/></svg>");
+    background-image:
+        linear-gradient(180deg, #131720 0%, rgba(19, 23, 32, 0.6) 25%, transparent 55%),
+        url("data:image/svg+xml,<svg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'><rect x='0.5' y='0.5' width='1.5' height='1.5' fill='%231a1f2e'/></svg>");
 }
 
 .bg-grid-size {
