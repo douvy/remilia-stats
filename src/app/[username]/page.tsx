@@ -148,10 +148,12 @@ export default function UserProfilePage() {
           location: data.user.location || "",
           cover: data.user.cover || "",
           connections: data.user.connections || [],
-          friendsDisplayed: (data.user.friendsDisplayed || []).map((friend: any) => ({
-            ...friend,
-            cover: null,
-          })),
+          friendsDisplayed: (data.user.friendsDisplayed || []).map(
+            (friend: any) => ({
+              ...friend,
+              cover: null,
+            }),
+          ),
           rank: userRank,
           pokesRank: pokesRank,
           socialCreditRank: socialCreditRank,
@@ -167,10 +169,11 @@ export default function UserProfilePage() {
 
   // Fetch friend covers after profile loads (non-blocking)
   useEffect(() => {
-    if (!profile?.friendsDisplayed || profile.friendsDisplayed.length === 0) return;
+    if (!profile?.friendsDisplayed || profile.friendsDisplayed.length === 0)
+      return;
 
     // Skip if covers already loaded
-    if (profile.friendsDisplayed.some(f => f.cover !== null)) return;
+    if (profile.friendsDisplayed.some((f) => f.cover !== null)) return;
 
     let isMounted = true;
 
@@ -179,7 +182,9 @@ export default function UserProfilePage() {
         const friendsWithCovers = await Promise.all(
           profile.friendsDisplayed.map(async (friend) => {
             try {
-              const friendRes = await fetch(`/api/profile/${friend.displayUsername}`);
+              const friendRes = await fetch(
+                `/api/profile/${friend.displayUsername}`,
+              );
               if (friendRes.ok) {
                 const friendData = await friendRes.json();
                 return {
@@ -191,15 +196,17 @@ export default function UserProfilePage() {
               // If fetch fails, keep friend without cover
             }
             return friend;
-          })
+          }),
         );
 
         // Only update if component still mounted
         if (isMounted) {
-          setProfile((prev) => prev ? { ...prev, friendsDisplayed: friendsWithCovers } : null);
+          setProfile((prev) =>
+            prev ? { ...prev, friendsDisplayed: friendsWithCovers } : null,
+          );
         }
       } catch (error) {
-        console.error('Failed to fetch friend covers:', error);
+        console.error("Failed to fetch friend covers:", error);
       }
     };
 
@@ -214,8 +221,7 @@ export default function UserProfilePage() {
     return (
       <main className="min-h-screen flex flex-col">
         <Header connectionStatus={connectionStatus} />
-        <div className="bg-background bg-grid-pattern bg-grid-size pb-[415px] md:pb-[445px]">
-        </div>
+        <div className="bg-background bg-grid-pattern bg-grid-size pb-[415px] md:pb-[445px]"></div>
         <div className="bg-[#141519] border-t border-[#1c2029] flex-grow flex flex-col">
           <div className="container mx-auto px-4 max-w-7xl -mt-[393px] md:-mt-[428px] pb-12 md:pb-20">
             {/* Breadcrumb skeleton */}
@@ -241,12 +247,18 @@ export default function UserProfilePage() {
                 <div className="bg-[#181a1f] border border-[#2d323b] shadow-[inset_0_-2px_0_0_#23252a] rounded-lg p-5">
                   <div className="flex gap-3 mb-3">
                     {[1, 2, 3].map((i) => (
-                      <div key={i} className="h-14 w-20 bg-[#20222a] rounded-md animate-pulse"></div>
+                      <div
+                        key={i}
+                        className="h-14 w-20 bg-[#20222a] rounded-md animate-pulse"
+                      ></div>
                     ))}
                   </div>
                   <div className="flex gap-3 mb-6">
                     {[1, 2].map((i) => (
-                      <div key={i} className="h-14 w-20 bg-[#20222a] rounded-md animate-pulse"></div>
+                      <div
+                        key={i}
+                        className="h-14 w-20 bg-[#20222a] rounded-md animate-pulse"
+                      ></div>
                     ))}
                   </div>
                   <div className="h-24 w-full bg-[#20222a] rounded animate-pulse mb-6"></div>
@@ -257,7 +269,10 @@ export default function UserProfilePage() {
               {/* Right Column */}
               <div className="space-y-6">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="bg-[#181a1f] border border-[#2d323b] shadow-[inset_0_-2px_0_0_#23252a] rounded-lg p-5">
+                  <div
+                    key={i}
+                    className="bg-[#181a1f] border border-[#2d323b] shadow-[inset_0_-2px_0_0_#23252a] rounded-lg p-5"
+                  >
                     <div className="h-6 w-32 bg-[#20222a] rounded animate-pulse mb-3"></div>
                     <div className="space-y-2">
                       <div className="h-4 w-full bg-[#20222a] rounded animate-pulse"></div>
@@ -277,8 +292,7 @@ export default function UserProfilePage() {
     return (
       <main className="min-h-screen flex flex-col">
         <Header connectionStatus={connectionStatus} />
-        <div className="bg-background bg-grid-pattern bg-grid-size pb-[415px] md:pb-[445px]">
-        </div>
+        <div className="bg-background bg-grid-pattern bg-grid-size pb-[415px] md:pb-[445px]"></div>
         <div className="bg-[#141519] border-t border-[#1c2029] flex-grow flex flex-col">
           <div className="container mx-auto px-4 max-w-7xl -mt-[393px] md:-mt-[428px]">
             <div className="flex items-center justify-center py-32">
@@ -303,8 +317,7 @@ export default function UserProfilePage() {
   return (
     <main className="min-h-screen flex flex-col">
       <Header connectionStatus={connectionStatus} />
-      <div className="bg-background bg-grid-pattern bg-grid-size pb-[415px] md:pb-[445px]">
-      </div>
+      <div className="bg-background bg-grid-pattern bg-grid-size pb-[415px] md:pb-[445px]"></div>
       <div className="bg-[#141519] border-t border-[#1c2029] flex-grow flex flex-col">
         <div className="container mx-auto px-4 max-w-7xl -mt-[393px] md:-mt-[428px] pb-12 md:pb-20">
           {/* Breadcrumb */}
@@ -314,7 +327,9 @@ export default function UserProfilePage() {
               className="flex items-center gap-2 text-soft-blue cursor-pointer"
             >
               <i className="fa-regular fa-arrow-left"></i>
-              <span className="underline decoration-[#2f3847] hover:decoration-[#5584cf] transition-colors">Leaderboard</span>
+              <span className="underline decoration-[#2f3847] hover:decoration-[#5584cf] transition-colors">
+                Leaderboard
+              </span>
             </button>
             {lastUpdated && (
               <div className="text-xs text-[#6e7787]">
@@ -323,9 +338,9 @@ export default function UserProfilePage() {
             )}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:items-start">
             {/* Left Column - Profile Card & Stats */}
-            <div className="space-y-6">
+            <div className="space-y-6 lg:sticky lg:top-20 lg:self-start">
               <div className="relative bg-[#181a1f] border border-[#2d323b] shadow-[inset_0_-2px_0_0_#23252a] rounded-lg px-5 py-2 overflow-hidden">
                 {profile.cover && (
                   <>
@@ -398,21 +413,27 @@ export default function UserProfilePage() {
                       <ProfileStat
                         label="Beetles"
                         value={profile.beetles}
-                        icon={<i className="fa-regular fa-bug text-soft-blue text-[10px] [@media(min-width:400px)]:text-xs"></i>}
+                        icon={
+                          <i className="fa-regular fa-bug text-soft-blue text-[10px] [@media(min-width:400px)]:text-xs"></i>
+                        }
                         rank={profile.rank}
                         totalUsers={totalUsers}
                       />
                       <ProfileStat
                         label="Pokes"
                         value={profile.pokes}
-                        icon={<i className="fa-regular fa-hand-point-up text-soft-blue text-[10px] [@media(min-width:400px)]:text-xs"></i>}
+                        icon={
+                          <i className="fa-regular fa-hand-point-up text-soft-blue text-[10px] [@media(min-width:400px)]:text-xs"></i>
+                        }
                         rank={profile.pokesRank}
                         totalUsers={totalUsers}
                       />
                       <ProfileStat
                         label="Social Credit"
                         value={profile.socialCredit}
-                        icon={<SocialCreditIcon className="w-3 h-3 [@media(min-width:400px)]:w-3.5 [@media(min-width:400px)]:h-3.5 flex-shrink-0" />}
+                        icon={
+                          <SocialCreditIcon className="w-3 h-3 [@media(min-width:400px)]:w-3.5 [@media(min-width:400px)]:h-3.5 flex-shrink-0" />
+                        }
                         rank={profile.socialCreditRank}
                         totalUsers={totalUsers}
                       />
@@ -428,12 +449,16 @@ export default function UserProfilePage() {
                     <ProfileStat
                       label="Friends"
                       value={profile.friendCount}
-                      icon={<i className="fa-regular fa-users text-soft-blue text-[10px] [@media(min-width:400px)]:text-xs"></i>}
+                      icon={
+                        <i className="fa-regular fa-users text-soft-blue text-[10px] [@media(min-width:400px)]:text-xs"></i>
+                      }
                     />
                     <ProfileStat
                       label="Achievements"
                       value={profile.achievementsCount}
-                      icon={<i className="fa-regular fa-medal text-soft-blue text-[10px] [@media(min-width:400px)]:text-xs"></i>}
+                      icon={
+                        <i className="fa-regular fa-medal text-soft-blue text-[10px] [@media(min-width:400px)]:text-xs"></i>
+                      }
                     />
                   </div>
                 </div>
