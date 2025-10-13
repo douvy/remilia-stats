@@ -187,7 +187,7 @@ export default function Header({
             </div>
 
             {/* Mobile Actions - Only visible below md breakpoint */}
-            <div className="md:hidden absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2">
+            <div className="md:hidden absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-3">
               <button
                 type="button"
                 className="flex items-center justify-center h-8 w-8 border border-divider rounded-md text-bright-blue focus:outline-none"
