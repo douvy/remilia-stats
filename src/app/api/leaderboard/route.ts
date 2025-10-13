@@ -85,6 +85,31 @@ export async function GET(request: NextRequest) {
       }
     });
 
+    // Compute ranks with tie handling based on current sort
+    const getSortValue = (user: any) => {
+      if (sortBy === 'username' || sortBy === 'user') return null; // No rank for username sort
+      return user[sortBy] || 0;
+    };
+
+    let currentRank = 1;
+    let prevValue: number | null = null;
+
+    filteredUsers = filteredUsers.map((user: any, index: number) => {
+      const value = getSortValue(user);
+
+      // Update rank only when value changes (handles ties)
+      if (value !== null && prevValue !== null && value !== prevValue) {
+        currentRank = index + 1;
+      }
+
+      prevValue = value;
+
+      return {
+        ...user,
+        rank: value !== null ? currentRank : user.rank, // Use computed rank or keep beetles rank
+      };
+    });
+
     // Calculate pagination
     const total = filteredUsers.length;
     const pages = Math.ceil(total / limit);
@@ -92,19 +117,7 @@ export async function GET(request: NextRequest) {
     const endIndex = startIndex + limit;
 
     // Get the page of users
-    const users = filteredUsers.slice(startIndex, endIndex);
-
-    // Preserve all rank fields and set primary display rank based on sort field
-    const rankedUsers = users.map((user: any) => ({
-      ...user,
-      rank: user.rank, // beetles rank
-      pokesRank: user.pokesRank,
-      socialCreditRank: user.socialCreditRank,
-      // Set display rank based on current sort
-      displayRank: sortBy === 'pokes' ? user.pokesRank :
-                   sortBy === 'socialCredit' ? user.socialCreditRank :
-                   user.rank
-    }));
+    const rankedUsers = filteredUsers.slice(startIndex, endIndex);
 
     return NextResponse.json({
       users: rankedUsers,

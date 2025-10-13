@@ -37,6 +37,16 @@ export default function LeaderboardTable({
       : "fa-regular fa-angle-up text-white";
   };
 
+  // Pre-compute rank counts for tie detection
+  const rankCounts = users.reduce((acc, u) => {
+    acc[u.rank] = (acc[u.rank] || 0) + 1;
+    return acc;
+  }, {} as Record<number, number>);
+
+  const formatRank = (rank: number) => {
+    return rankCounts[rank] > 1 ? `T${rank}` : rank.toString();
+  };
+
   return (
     <div className="overflow-x-auto border border-[#243147] rounded-lg">
       <table className="min-w-full overflow-hidden table-fixed">
@@ -128,14 +138,14 @@ export default function LeaderboardTable({
               </td>
             </tr>
           ) : (
-            users.map((user) => (
+            users.map((user, index) => (
               <tr
                 key={user.username}
                 onClick={() => onUserClick(user.username)}
                 className="bg-background hover:bg-[#171c29] transition-colors cursor-pointer"
               >
                 <td className="py-3 px-6 text-sm font-medium text-white">
-                  {user.rank}
+                  {formatRank(user.rank)}
                 </td>
                 <td className="py-3 px-6 text-sm font-medium text-white">
                   <div className="flex items-center gap-3">
