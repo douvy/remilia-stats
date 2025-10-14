@@ -1,6 +1,6 @@
 # Remilia Stats
 
-RemiliaNET leaderboard. Syncs every 4h via Vercel Cron.
+RemiliaNET leaderboard and user profiles with stats. Syncs every 4h via Vercel Cron.
 
 ## Setup
 
