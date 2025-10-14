@@ -167,6 +167,24 @@ h4 {
     );
 }
 
+/* Profile avatar border - sandwich system */
+.pfp-sandwich-outer {
+    border: 1px solid rgba(44, 48, 56, 0.5);
+    background: rgba(20, 21, 26, 0.2);
+}
+
+.pfp-sandwich-gap {
+    background-image: url("data:image/svg+xml,<svg width='2' height='2' viewBox='0 0 2 2' xmlns='http://www.w3.org/2000/svg'><rect x='0.25' y='0.25' width='0.5' height='0.5' fill='%231e2532'/></svg>");
+}
+
+.pfp-sandwich-inner {
+    border: 1px solid #2c3038;
+}
+
+.pfp-inner-content {
+    background: rgba(255, 255, 255, 0.08);
+}
+
 /* Retro VHS/CRT Effects */
 @keyframes vhs-tracking {
     0% {

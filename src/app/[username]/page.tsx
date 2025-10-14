@@ -390,15 +390,27 @@ export default function UserProfilePage() {
                   </>
                 )}
                 <div className="relative flex items-center gap-4 min-h-[200px]">
-                  <img
-                    src={profile.pfpUrl}
-                    alt={profile.displayName}
-                    className="w-36 h-36 rounded-lg flex-shrink-0"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src =
-                        "/assets/img/nopfp.png";
-                    }}
-                  />
+                  <div className="relative rounded-lg flex-shrink-0">
+                    {/* Border sandwich - absolute positioned behind */}
+                    <div className="absolute inset-0 pfp-sandwich-outer rounded-lg p-[1px]">
+                      <div className="pfp-sandwich-gap p-[3px] rounded-lg h-full">
+                        <div className="pfp-sandwich-inner rounded-lg h-full p-[1px]"></div>
+                      </div>
+                    </div>
+
+                    {/* Content - relative positioned on top */}
+                    <div className="relative pfp-inner-content rounded-lg m-[5px]">
+                      <img
+                        src={profile.pfpUrl}
+                        alt={profile.displayName}
+                        className="w-36 h-36 rounded-lg block"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src =
+                            "/assets/img/nopfp.png";
+                        }}
+                      />
+                    </div>
+                  </div>
                   <div className="min-w-0">
                     <h1 className="text-2xl font-windsor-bold text-white mb-1 truncate">
                       {profile.displayName}
