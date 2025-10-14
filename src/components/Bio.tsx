@@ -17,14 +17,33 @@ export default function Bio({
     <div className="bg-[#181a1f] border border-[#2d323b] shadow-[inset_0_-2px_0_0_#23252a] rounded-lg p-5">
       <div className="flex items-start justify-between gap-4 mb-4">
         <div className="flex items-center gap-4">
-          <img
-            src={pfpUrl}
-            alt={displayName}
-            className="w-16 h-16 rounded-lg"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = "/assets/img/nopfp.png";
-            }}
-          />
+          <div className="relative rounded-lg">
+            <div
+              className="absolute inset-0 rounded-lg"
+              style={{
+                padding: '1px',
+                background: '#576c8b',
+              }}
+            >
+              <div
+                className="w-full h-full rounded-lg"
+                style={{
+                  padding: '2px',
+                  background: 'rgba(58, 62, 68, 0.95)',
+                }}
+              >
+                <div className="w-full h-full rounded-lg bg-[#181a1f]"></div>
+              </div>
+            </div>
+            <img
+              src={pfpUrl}
+              alt={displayName}
+              className="relative w-16 h-16 rounded-lg m-[3px]"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = "/assets/img/nopfp.png";
+              }}
+            />
+          </div>
           <div>
             <h2 className="text-lg font-windsor-bold text-white">
               {displayName}
