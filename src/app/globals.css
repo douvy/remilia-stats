@@ -157,6 +157,16 @@ h4 {
     }
 }
 
+/* Profile cover vignette effect */
+.cover-vignette {
+    background: radial-gradient(
+        ellipse 110% 90% at 50% 45%,
+        transparent 0%,
+        rgba(0, 0, 0, 0.35) 55%,
+        rgba(0, 0, 0, 0.65) 100%
+    );
+}
+
 /* Retro VHS/CRT Effects */
 @keyframes vhs-tracking {
     0% {

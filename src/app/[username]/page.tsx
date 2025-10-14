@@ -376,6 +376,9 @@ export default function UserProfilePage() {
                       }}
                     />
 
+                    {/* Radial Vignette - Edge Darkening */}
+                    <div className="absolute inset-0 cover-vignette" />
+
                     {/* Gradient Overlay for Readability */}
                     <div
                       className="absolute inset-0"
