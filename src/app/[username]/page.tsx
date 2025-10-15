@@ -390,7 +390,7 @@ export default function UserProfilePage() {
                   </>
                 )}
                 <div className="relative flex items-center gap-4 min-h-[200px]">
-                  <div className="relative rounded-lg flex-shrink-0">
+                  <div className="relative rounded-lg flex-shrink-0 animate-pfp-enter opacity-0 [animation-delay:150ms]">
                     {/* Border sandwich - absolute positioned behind */}
                     <div className="absolute inset-0 pfp-sandwich-outer rounded-lg p-[1px]">
                       <div className="pfp-sandwich-gap p-[3px] rounded-lg h-full">

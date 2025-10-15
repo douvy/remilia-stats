@@ -260,3 +260,35 @@ h4 {
         animation: beetle-scurry-mobile 2s ease-out forwards;
     }
 }
+
+/* Profile PFP slide-in animation */
+@keyframes pfp-slide-pop {
+    0% {
+        transform: translateY(-20px) translateZ(0);
+        opacity: 0;
+    }
+    70% {
+        transform: translateY(0) translateZ(0);
+        opacity: 1;
+    }
+    85% {
+        transform: translateY(0) scale(1.03) translateZ(0);
+    }
+    100% {
+        transform: translateY(0) scale(1) translateZ(0);
+        opacity: 1;
+    }
+}
+
+.animate-pfp-enter {
+    animation: pfp-slide-pop 400ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-pfp-enter {
+        animation: none;
+        opacity: 1;
+        will-change: auto;
+    }
+}
