@@ -17,7 +17,7 @@ export default function Bio({
     <div className="bg-[#181a1f] border border-[#2d323b] shadow-[inset_0_-2px_0_0_#23252a] rounded-lg p-5">
       <div className="flex items-start justify-between gap-4 mb-4">
         <div className="flex items-center gap-4">
-          <div className="relative rounded-lg animate-pfp-enter opacity-0 [animation-delay:150ms]">
+          <div className="relative rounded-lg animate-pfp-enter-small opacity-0 [animation-delay:150ms]">
             <div
               className="absolute inset-0 rounded-lg"
               style={{

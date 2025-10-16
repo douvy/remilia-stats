@@ -169,16 +169,18 @@ h4 {
 
 /* Profile avatar border - sandwich system */
 .pfp-sandwich-outer {
-    border: 1px solid rgba(44, 48, 56, 0.5);
+    border: 1px solid rgba(44, 48, 56, 0.75);
     background: rgba(20, 21, 26, 0.2);
 }
 
 .pfp-sandwich-gap {
-    background-image: url("data:image/svg+xml,<svg width='2' height='2' viewBox='0 0 2 2' xmlns='http://www.w3.org/2000/svg'><rect x='0.25' y='0.25' width='0.5' height='0.5' fill='%231e2532'/></svg>");
+    background-image: url("data:image/svg+xml,<svg width='1.5' height='1.5' viewBox='0 0 1.5 1.5' xmlns='http://www.w3.org/2000/svg'><rect x='0' y='0' width='0.6' height='0.6' fill='%232a3240'/></svg>");
+    background-position: center;
+    background-size: 1.5px 1.5px;
 }
 
 .pfp-sandwich-inner {
-    border: 1px solid #2c3038;
+    border: 1px solid #343844;
 }
 
 .pfp-inner-content {
@@ -264,7 +266,7 @@ h4 {
 /* Profile PFP slide-in animation */
 @keyframes pfp-slide-pop {
     0% {
-        transform: translateY(-20px) translateZ(0);
+        transform: translateY(-60px) translateZ(0);
         opacity: 0;
     }
     70% {
@@ -272,7 +274,25 @@ h4 {
         opacity: 1;
     }
     85% {
-        transform: translateY(0) scale(1.03) translateZ(0);
+        transform: translateY(0) scale(1.04) translateZ(0);
+    }
+    100% {
+        transform: translateY(0) scale(1) translateZ(0);
+        opacity: 1;
+    }
+}
+
+@keyframes pfp-slide-pop-small {
+    0% {
+        transform: translateY(-40px) translateZ(0);
+        opacity: 0;
+    }
+    70% {
+        transform: translateY(0) translateZ(0);
+        opacity: 1;
+    }
+    85% {
+        transform: translateY(0) scale(1.04) translateZ(0);
     }
     100% {
         transform: translateY(0) scale(1) translateZ(0);
@@ -281,7 +301,12 @@ h4 {
 }
 
 .animate-pfp-enter {
-    animation: pfp-slide-pop 400ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    animation: pfp-slide-pop 550ms cubic-bezier(0.34, 1.35, 0.64, 1) forwards;
+    will-change: transform, opacity;
+}
+
+.animate-pfp-enter-small {
+    animation: pfp-slide-pop-small 550ms cubic-bezier(0.34, 1.35, 0.64, 1) forwards;
     will-change: transform, opacity;
 }
 
