@@ -28,6 +28,14 @@ export default function Header({
   const [showBeetleAnimation, setShowBeetleAnimation] = useState(false);
   const [beetleVariant, setBeetleVariant] = useState<'pond' | 'ladybug' | 'green' | 'golden-scarab'>('pond');
 
+  // Drag state using ref for performance
+  const dragState = React.useRef({
+    startY: 0,
+    currentY: 0,
+    isDragging: false,
+  });
+  const [sheetTranslateY, setSheetTranslateY] = useState(0);
+
   // Ensure hydration matching by only showing client-side elements after mounting
   useEffect(() => {
     setIsMounted(true);
@@ -98,6 +106,62 @@ export default function Header({
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen((prev) => !prev);
   };
+
+  // Drag handlers for bottom sheet
+  const handleDragStart = useCallback((e: React.TouchEvent | React.MouseEvent) => {
+    e.stopPropagation();
+
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+
+    dragState.current = {
+      startY: clientY,
+      currentY: clientY,
+      isDragging: true,
+    };
+  }, []);
+
+  const handleDragMove = useCallback((e: React.TouchEvent | React.MouseEvent) => {
+    if (!dragState.current.isDragging) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    const deltaY = clientY - dragState.current.startY;
+
+    // Only allow dragging down
+    if (deltaY > 0) {
+      dragState.current.currentY = clientY;
+      setSheetTranslateY(deltaY);
+    }
+  }, []);
+
+  const handleDragEnd = useCallback(() => {
+    if (!dragState.current.isDragging) return;
+
+    const deltaY = dragState.current.currentY - dragState.current.startY;
+    const threshold = 60;
+
+    if (deltaY > threshold) {
+      setIsMobileMenuOpen(false);
+    }
+
+    // Reset immediately
+    dragState.current = {
+      startY: 0,
+      currentY: 0,
+      isDragging: false,
+    };
+    setSheetTranslateY(0);
+  }, []);
+
+  // Reset sheet position when menu closes
+  useEffect(() => {
+    if (!isMobileMenuOpen) {
+      setSheetTranslateY(0);
+      dragState.current.isDragging = false;
+    }
+  }, [isMobileMenuOpen]);
 
   // Handle random profile navigation
   const handleRandomProfile = useCallback(async () => {
@@ -273,12 +337,25 @@ export default function Header({
           }}
         >
           <div
-            className={`select-none absolute bottom-0 left-0 right-0 bg-[#121417] rounded-t-xl transition-transform duration-300 ease-in-out transform ${
-              isMobileMenuOpen ? "translate-y-0" : "translate-y-full"
-            }`}
+            className={`select-none absolute bottom-0 left-0 right-0 bg-[#121417] rounded-t-xl ${
+              sheetTranslateY === 0 ? 'transition-transform duration-300 ease-out' : ''
+            } ${isMobileMenuOpen ? 'translate-y-0' : 'translate-y-full'}`}
+            style={{
+              transform: sheetTranslateY > 0 ? `translateY(${sheetTranslateY}px)` : undefined,
+            }}
           >
-            <div className="w-full flex items-center justify-center pt-3 pb-1">
-              <div className="w-16 h-1 bg-gray-300/20 rounded-full"></div>
+            <div
+              className="w-full flex items-center justify-center pt-4 pb-3 touch-none select-none active:cursor-grabbing"
+              onTouchStart={handleDragStart}
+              onTouchMove={handleDragMove}
+              onTouchEnd={handleDragEnd}
+              onTouchCancel={handleDragEnd}
+              onMouseDown={handleDragStart}
+              onMouseMove={handleDragMove}
+              onMouseUp={handleDragEnd}
+              onMouseLeave={handleDragEnd}
+            >
+              <div className="w-12 h-1 bg-gray-400/40 rounded-full pointer-events-none"></div>
             </div>
             <div className="p-5 space-y-5">
               {/* Search Button */}
