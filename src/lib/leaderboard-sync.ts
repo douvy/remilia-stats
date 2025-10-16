@@ -90,25 +90,40 @@ async function fetchUserProfile(username: string, metrics: SyncMetrics): Promise
 }
 
 async function getAllUsers(): Promise<string[]> {
-  console.log('🔄 Fetching complete user list...');
+  console.log('🔄 Fetching complete user list from multiple seed users...');
 
-  const response = await fetchWithRetry('https://remilia.com/api/friends?page=1&limit=10000&username=remilia_jackson');
+  const seedUsers = ['remilia_jackson', 'xultra'];
+  const allUsernames = new Set<string>();
 
-  if (!response?.friends || !Array.isArray(response.friends)) {
-    throw new Error('Invalid friends API response');
+  // Fetch friends from each seed user
+  for (const seedUser of seedUsers) {
+    try {
+      console.log(`  Fetching friends for ${seedUser}...`);
+      const response = await fetchWithRetry(`https://remilia.com/api/friends?page=1&limit=10000&username=${seedUser}`);
+
+      if (!response?.friends || !Array.isArray(response.friends)) {
+        console.warn(`Invalid friends API response for ${seedUser}`);
+        continue;
+      }
+
+      const usernames = response.friends
+        .map((friend: any) => friend.displayUsername)
+        .filter((username: string) => username && username.trim());
+
+      usernames.forEach((username: string) => allUsernames.add(username));
+      console.log(`  Found ${usernames.length} friends for ${seedUser}`);
+    } catch (error) {
+      console.error(`Failed to fetch friends for ${seedUser}:`, error);
+      // Continue with other seed users even if one fails
+    }
   }
 
-  const usernames = response.friends
-    .map((friend: any) => friend.displayUsername)
-    .filter((username: string) => username && username.trim());
+  // Ensure seed users are included (may not be in their own friends lists)
+  seedUsers.forEach(seedUser => allUsernames.add(seedUser));
 
-  // Ensure seed user is included (may not be in their own friends list)
-  if (!usernames.includes('remilia_jackson')) {
-    usernames.push('remilia_jackson');
-  }
-
-  console.log(`✅ Found ${usernames.length} users to process`);
-  return usernames;
+  const finalUsernames = Array.from(allUsernames);
+  console.log(`✅ Found ${finalUsernames.length} unique users to process`);
+  return finalUsernames;
 }
 
 async function processBatch(
