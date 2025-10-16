@@ -393,13 +393,13 @@ export default function UserProfilePage() {
                   <div className="relative rounded-lg flex-shrink-0 animate-pfp-enter opacity-0 [animation-delay:150ms]">
                     {/* Border sandwich - absolute positioned behind */}
                     <div className="absolute inset-0 pfp-sandwich-outer rounded-lg p-[1px]">
-                      <div className="pfp-sandwich-gap p-[6px] rounded-lg h-full">
+                      <div className="pfp-sandwich-gap p-[7px] rounded-lg h-full">
                         <div className="pfp-sandwich-inner rounded-lg h-full p-[1px]"></div>
                       </div>
                     </div>
 
                     {/* Content - relative positioned on top */}
-                    <div className="relative pfp-inner-content rounded-lg m-[8px]">
+                    <div className="relative pfp-inner-content rounded-lg m-[9px]">
                       <img
                         src={profile.pfpUrl}
                         alt={profile.displayName}

@@ -174,9 +174,9 @@ h4 {
 }
 
 .pfp-sandwich-gap {
-    background-image: url("data:image/svg+xml,<svg width='2' height='2' viewBox='0 0 2 2' xmlns='http://www.w3.org/2000/svg'><rect x='0' y='0' width='0.8' height='0.8' fill='%232a3240'/></svg>");
+    background-image: url("data:image/svg+xml,<svg width='3' height='3' viewBox='0 0 3 3' xmlns='http://www.w3.org/2000/svg'><rect x='0' y='0' width='1' height='1' fill='%232a3240'/></svg>");
     background-position: center;
-    background-size: 2px 2px;
+    background-size: 3px 3px;
 }
 
 .pfp-sandwich-inner {
