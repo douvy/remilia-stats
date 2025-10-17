@@ -74,14 +74,26 @@ export default function Friends({
                 </>
               )}
 
-              <img
-                src={friend.pfpUrl}
-                alt={friend.displayName}
-                className="w-14 h-14 md:w-16 md:h-16 rounded-md flex-shrink-0 relative z-10"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = "/assets/img/nopfp.png";
-                }}
-              />
+              <div className="relative rounded-md flex-shrink-0 z-10">
+                {/* Border sandwich - absolute positioned behind, scaled for smaller pfp */}
+                <div className="absolute inset-0 pfp-sandwich-outer rounded-md p-[0.5px]">
+                  <div className="pfp-sandwich-gap p-[3px] rounded-md h-full">
+                    <div className="pfp-sandwich-inner rounded-md h-full p-[0.5px]"></div>
+                  </div>
+                </div>
+
+                {/* Content - relative positioned on top */}
+                <div className="relative pfp-inner-content rounded-md m-[4px]">
+                  <img
+                    src={friend.pfpUrl}
+                    alt={friend.displayName}
+                    className="w-14 h-14 md:w-16 md:h-16 rounded-md block"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "/assets/img/nopfp.png";
+                    }}
+                  />
+                </div>
+              </div>
               <div className="min-w-0 relative z-10">
                 <p className="text-white text-sm font-medium truncate">
                   {friend.displayName}
