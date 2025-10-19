@@ -32,7 +32,3 @@ Start dev server:
 ```bash
 npm run dev
 ```
-
-## Production
-
-Deployed on Vercel. Cron job syncs data every 4 hours (see `vercel.json`).
