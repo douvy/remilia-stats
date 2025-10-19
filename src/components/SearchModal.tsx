@@ -23,6 +23,9 @@ export default function SearchModal({
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState<SearchType>(null);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [searchResults, setSearchResults] = useState<UserStats[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -31,6 +34,7 @@ export default function SearchModal({
     if (isOpen) {
       setSearchQuery("");
       setSelectedType(null);
+      setSelectedIndex(0);
 
       // Focus search input when modal opens
       setTimeout(() => {
@@ -38,6 +42,11 @@ export default function SearchModal({
       }, 100);
     }
   }, [isOpen]);
+
+  // Reset selected index when search results change
+  useEffect(() => {
+    setSelectedIndex(0);
+  }, [searchResults.length]);
 
   // Close modal when clicking outside
   useEffect(() => {
@@ -66,6 +75,25 @@ export default function SearchModal({
 
       if (event.key === "Escape") {
         onClose();
+        return;
+      }
+
+      // Only handle arrow keys and enter when we have search results
+      if (searchQuery.trim() && searchResults.length > 0) {
+        if (event.key === "ArrowDown") {
+          event.preventDefault();
+          setSelectedIndex((prev) =>
+            prev < searchResults.length - 1 ? prev + 1 : prev,
+          );
+        } else if (event.key === "ArrowUp") {
+          event.preventDefault();
+          setSelectedIndex((prev) => (prev > 0 ? prev - 1 : 0));
+        } else if (event.key === "Enter") {
+          event.preventDefault();
+          if (searchResults[selectedIndex]) {
+            handleUserClick(searchResults[selectedIndex].username);
+          }
+        }
       }
     }
 
@@ -73,7 +101,7 @@ export default function SearchModal({
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, searchQuery, searchResults, selectedIndex]);
 
   // Handler for type selection
   const handleTypeSelect = (type: SearchType, prefix: string) => {
@@ -106,8 +134,8 @@ export default function SearchModal({
   const handleSearchSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim() && searchResults.length > 0) {
-      // Navigate to first result
-      handleUserClick(searchResults[0].username);
+      // Navigate to selected result
+      handleUserClick(searchResults[selectedIndex].username);
     }
   };
 
@@ -125,9 +153,15 @@ export default function SearchModal({
       setIsLoadingLeaderboards(true);
       try {
         const [beetlesRes, pokesRes, socialCreditRes] = await Promise.all([
-          fetch('/api/leaderboard?sortBy=beetles&sortDirection=desc&limit=5&page=1'),
-          fetch('/api/leaderboard?sortBy=pokes&sortDirection=desc&limit=5&page=1'),
-          fetch('/api/leaderboard?sortBy=socialCredit&sortDirection=desc&limit=5&page=1'),
+          fetch(
+            "/api/leaderboard?sortBy=beetles&sortDirection=desc&limit=5&page=1",
+          ),
+          fetch(
+            "/api/leaderboard?sortBy=pokes&sortDirection=desc&limit=5&page=1",
+          ),
+          fetch(
+            "/api/leaderboard?sortBy=socialCredit&sortDirection=desc&limit=5&page=1",
+          ),
         ]);
 
         const [beetlesData, pokesData, socialCreditData] = await Promise.all([
@@ -140,7 +174,7 @@ export default function SearchModal({
         setTopPokes(pokesData.users || []);
         setTopSocialCredit(socialCreditData.users || []);
       } catch (error) {
-        console.error('Failed to fetch top leaderboards:', error);
+        console.error("Failed to fetch top leaderboards:", error);
       } finally {
         setIsLoadingLeaderboards(false);
       }
@@ -149,19 +183,16 @@ export default function SearchModal({
     fetchTopLeaderboards();
   }, [isOpen]);
 
-  // Use API to search all users, not just current page
-  const [searchResults, setSearchResults] = useState<UserStats[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-
   // Debounced search effect
   useEffect(() => {
-    if (!searchQuery.trim()) {
+    if (!searchQuery.trim() || searchQuery.trim().length < 3) {
       setSearchResults([]);
+      setIsSearching(false);
       return;
     }
 
+    setIsSearching(true);
     const timeoutId = setTimeout(async () => {
-      setIsSearching(true);
       try {
         const response = await fetch(
           `/api/leaderboard?search=${encodeURIComponent(searchQuery.trim())}&limit=10`,
@@ -184,9 +215,12 @@ export default function SearchModal({
       } finally {
         setIsSearching(false);
       }
-    }, 300); // 300ms debounce
+    }, 200); // 200ms debounce
 
-    return () => clearTimeout(timeoutId);
+    return () => {
+      clearTimeout(timeoutId);
+      setIsSearching(false);
+    };
   }, [searchQuery]);
 
   if (!isOpen) return null;
@@ -247,22 +281,30 @@ export default function SearchModal({
           {searchQuery.trim() ? (
             /* SEARCH RESULTS */
             <div className="p-2">
-              <h3 className="text-xs uppercase text-[#6e7687] px-2 py-1.5">
+              <div className="text-xs uppercase text-[#6e7688] px-2 py-1.5 font-windsor-bold">
                 Search Results{" "}
                 {isSearching ? "(searching...)" : `(${searchResults.length})`}
-              </h3>
+              </div>
               <div className="mt-1 space-y-0.5">
-                {isSearching ? (
-                  <div className="px-2 py-4 text-center text-[#6e7787]">
-                    <i className="fa-regular fa-spinner fa-spin mr-2"></i>
+                {searchQuery.trim().length < 3 ? (
+                  <div className="px-2 py-8 text-center text-white text-base">
+                    <i className="fa-regular fa-bug mr-2"></i>
+                    Type 3+ characters to search
+                  </div>
+                ) : isSearching ? (
+                  <div className="px-2 py-8 text-center text-white text-base">
+                    <i className="fa-regular fa-bug animate-bounce mr-2"></i>
                     Searching all users...
                   </div>
                 ) : searchResults.length > 0 ? (
                   searchResults.map((user, index) => (
                     <div
                       key={user.username}
-                      className="px-2 py-2.5 rounded flex items-center justify-between cursor-pointer hover:bg-[#23252a]"
+                      className={`px-2 py-2.5 rounded flex items-center justify-between cursor-pointer hover:bg-[#23252a] ${
+                        index === selectedIndex ? "bg-[#23252a]" : ""
+                      }`}
                       onClick={() => handleUserClick(user.username)}
+                      onMouseEnter={() => setSelectedIndex(index)}
                     >
                       <div className="flex items-center gap-3">
                         <img
@@ -292,8 +334,16 @@ export default function SearchModal({
                     </div>
                   ))
                 ) : (
-                  <div className="px-2 py-4 text-center text-[#6e7787]">
-                    No users found matching "{searchQuery}"
+                  <div className="px-2 py-8 text-center">
+                    <div className="text-white text-base mb-3">
+                      No users found matching "{searchQuery}"
+                    </div>
+                    <button
+                      onClick={() => setSearchQuery("")}
+                      className="px-3 py-1.5 bg-[#1b1d21] hover:bg-[#25272b] border border-[#343743] rounded-md transition-all text-sm shadow-[inset_0_-2px_0_0_#282a33] cursor-pointer text-white"
+                    >
+                      Clear search
+                    </button>
                   </div>
                 )}
               </div>
@@ -332,7 +382,8 @@ export default function SearchModal({
                               alt={user.displayName}
                               className="w-6 h-6 rounded-sm"
                               onError={(e) => {
-                                (e.target as HTMLImageElement).src = "/nopfp.png";
+                                (e.target as HTMLImageElement).src =
+                                  "/nopfp.png";
                               }}
                             />
                             <span className="text-white text-sm">
@@ -381,7 +432,8 @@ export default function SearchModal({
                               alt={user.displayName}
                               className="w-6 h-6 rounded-sm"
                               onError={(e) => {
-                                (e.target as HTMLImageElement).src = "/nopfp.png";
+                                (e.target as HTMLImageElement).src =
+                                  "/nopfp.png";
                               }}
                             />
                             <span className="text-white text-sm">
@@ -430,7 +482,8 @@ export default function SearchModal({
                               alt={user.displayName}
                               className="w-6 h-6 rounded-sm"
                               onError={(e) => {
-                                (e.target as HTMLImageElement).src = "/nopfp.png";
+                                (e.target as HTMLImageElement).src =
+                                  "/nopfp.png";
                               }}
                             />
                             <span className="text-white text-sm">
