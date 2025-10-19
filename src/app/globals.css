@@ -243,12 +243,20 @@ h4 {
         transform: translate(0, -50%);
         opacity: 1;
     }
-    80% {
-        transform: translate(-200px, -50%);
+    40% {
+        transform: translate(-120px, -50%);
+        opacity: 1;
+    }
+    50% {
+        transform: translate(-120px, -50%);
+        opacity: 1;
+    }
+    95% {
+        transform: translate(0, -50%);
         opacity: 1;
     }
     100% {
-        transform: translate(-200px, -50%);
+        transform: translate(0, -50%);
         opacity: 0;
     }
 }
@@ -257,9 +265,9 @@ h4 {
     animation: beetle-scurry 2s ease-in-out forwards;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
     .animate-beetle-scurry {
-        animation: beetle-scurry-mobile 2s ease-out forwards;
+        animation: beetle-scurry-mobile 2s ease-in-out forwards;
     }
 }
 

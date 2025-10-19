@@ -41,7 +41,7 @@ export default function Header({
     setIsMounted(true);
   }, []);
 
-  // Check for random navigation flag on mount (desktop only)
+  // Check for random navigation flag on mount (mobile & desktop)
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -49,7 +49,7 @@ export default function Header({
       const wasRandomNav = sessionStorage.getItem('randomNav');
       const variant = sessionStorage.getItem('beetleVariant') as 'pond' | 'ladybug' | 'green' | 'golden-scarab' | 'stag' | 'purple' | 'goliath' | 'monarch' | null;
 
-      if (wasRandomNav === 'true' && window.innerWidth >= 768) {
+      if (wasRandomNav === 'true') {
         sessionStorage.removeItem('randomNav');
         sessionStorage.removeItem('beetleVariant');
 
@@ -171,17 +171,15 @@ export default function Header({
       if (!res.ok) throw new Error('Failed to fetch random profile');
       const { username } = await res.json();
 
-      // Set flag for destination page to play animation (desktop only)
-      if (window.innerWidth >= 768) {
-        try {
-          // Randomize beetle variant
-          const variants = ['pond', 'ladybug', 'green', 'golden-scarab', 'stag', 'purple', 'goliath', 'monarch'] as const;
-          const variant = variants[Math.floor(Math.random() * variants.length)];
-          sessionStorage.setItem('randomNav', 'true');
-          sessionStorage.setItem('beetleVariant', variant);
-        } catch (error) {
-          // sessionStorage can throw in private browsing mode - graceful degradation
-        }
+      // Set flag for destination page to play animation (mobile & desktop)
+      try {
+        // Randomize beetle variant
+        const variants = ['pond', 'ladybug', 'green', 'golden-scarab', 'stag', 'purple', 'goliath', 'monarch'] as const;
+        const variant = variants[Math.floor(Math.random() * variants.length)];
+        sessionStorage.setItem('randomNav', 'true');
+        sessionStorage.setItem('beetleVariant', variant);
+      } catch (error) {
+        // sessionStorage can throw in private browsing mode - graceful degradation
       }
 
       // Navigate immediately
@@ -220,12 +218,12 @@ export default function Header({
   return (
     <>
       <header className="sticky top-0 z-50 bg-[#15171a] border-b border-[#1b2028] relative overflow-hidden">
-        {/* Scurrying Beetle in Header - Desktop only */}
+        {/* Scurrying Beetle in Header - Mobile & Desktop */}
         {showBeetleAnimation && (
           <img
             src={`/assets/img/${beetleVariant === 'monarch' ? 'monarch' : `beetle-${beetleVariant}`}.png`}
             alt=""
-            className="hidden md:block absolute top-1/2 md:right-[320px] w-8 h-8 animate-beetle-scurry pointer-events-none z-0"
+            className="absolute top-1/2 -right-4 md:right-[320px] w-8 h-8 animate-beetle-scurry pointer-events-none z-0"
           />
         )}
         <div className="container mx-auto px-4 py-3">
@@ -251,10 +249,10 @@ export default function Header({
             </div>
 
             {/* Mobile Actions - Only visible below md breakpoint */}
-            <div className="md:hidden absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-3">
+            <div className="md:hidden absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-3 z-10">
               <button
                 type="button"
-                className="flex items-center justify-center h-8 w-8 border border-divider rounded-md text-bright-blue focus:outline-none"
+                className="flex items-center justify-center h-8 w-8 bg-[#15171a] border border-divider rounded-md text-bright-blue focus:outline-none"
                 aria-label="Search"
                 onClick={() => setIsSearchModalOpen(true)}
               >
@@ -265,7 +263,7 @@ export default function Header({
               </button>
               <button
                 type="button"
-                className="flex items-center justify-center h-8 w-8 border border-divider rounded-md text-bright-blue focus:outline-none"
+                className="flex items-center justify-center h-8 w-8 bg-[#15171a] border border-divider rounded-md text-bright-blue focus:outline-none"
                 aria-label="Toggle mobile menu"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               >
