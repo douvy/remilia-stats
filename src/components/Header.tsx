@@ -26,7 +26,7 @@ export default function Header({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [showBeetleAnimation, setShowBeetleAnimation] = useState(false);
-  const [beetleVariant, setBeetleVariant] = useState<'pond' | 'ladybug' | 'green' | 'golden-scarab'>('pond');
+  const [beetleVariant, setBeetleVariant] = useState<'pond' | 'ladybug' | 'green' | 'golden-scarab' | 'stag' | 'purple' | 'goliath' | 'monarch'>('pond');
 
   // Drag state using ref for performance
   const dragState = React.useRef({
@@ -47,7 +47,7 @@ export default function Header({
 
     try {
       const wasRandomNav = sessionStorage.getItem('randomNav');
-      const variant = sessionStorage.getItem('beetleVariant') as 'pond' | 'ladybug' | 'green' | 'golden-scarab' | null;
+      const variant = sessionStorage.getItem('beetleVariant') as 'pond' | 'ladybug' | 'green' | 'golden-scarab' | 'stag' | 'purple' | 'goliath' | 'monarch' | null;
 
       if (wasRandomNav === 'true' && window.innerWidth >= 768) {
         sessionStorage.removeItem('randomNav');
@@ -175,7 +175,7 @@ export default function Header({
       if (window.innerWidth >= 768) {
         try {
           // Randomize beetle variant
-          const variants = ['pond', 'ladybug', 'green', 'golden-scarab'] as const;
+          const variants = ['pond', 'ladybug', 'green', 'golden-scarab', 'stag', 'purple', 'goliath', 'monarch'] as const;
           const variant = variants[Math.floor(Math.random() * variants.length)];
           sessionStorage.setItem('randomNav', 'true');
           sessionStorage.setItem('beetleVariant', variant);
@@ -223,7 +223,7 @@ export default function Header({
         {/* Scurrying Beetle in Header - Desktop only */}
         {showBeetleAnimation && (
           <img
-            src={`/assets/img/beetle-${beetleVariant}.png`}
+            src={`/assets/img/${beetleVariant === 'monarch' ? 'monarch' : `beetle-${beetleVariant}`}.png`}
             alt=""
             className="hidden md:block absolute top-1/2 md:right-[320px] w-8 h-8 animate-beetle-scurry pointer-events-none z-0"
           />
