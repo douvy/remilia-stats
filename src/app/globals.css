@@ -271,6 +271,111 @@ h4 {
     }
 }
 
+/* Butterfly flutter animations - rapid wing flaps */
+@keyframes butterfly-flutter {
+    0% {
+        transform: translate(0, -50%);
+        opacity: 1;
+    }
+    10% {
+        transform: translate(-13.75px, -56%);
+        opacity: 1;
+    }
+    20% {
+        transform: translate(-27.5px, -47%);
+        opacity: 1;
+    }
+    30% {
+        transform: translate(-41.25px, -55%);
+        opacity: 1;
+    }
+    45% {
+        transform: translate(-55px, -49%);
+        opacity: 1;
+    }
+    55% {
+        transform: translate(-55px, -53%);
+        opacity: 1;
+    }
+    65% {
+        transform: translate(-41.25px, -48%);
+        opacity: 1;
+    }
+    75% {
+        transform: translate(-27.5px, -56%);
+        opacity: 1;
+    }
+    85% {
+        transform: translate(-13.75px, -48%);
+        opacity: 1;
+    }
+    95% {
+        transform: translate(0, -50%);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(0, -50%);
+        opacity: 0;
+    }
+}
+
+@keyframes butterfly-flutter-mobile {
+    0% {
+        transform: translate(0, -50%);
+        opacity: 1;
+    }
+    9% {
+        transform: translate(-30px, -56%);
+        opacity: 1;
+    }
+    18% {
+        transform: translate(-60px, -47%);
+        opacity: 1;
+    }
+    27% {
+        transform: translate(-90px, -55%);
+        opacity: 1;
+    }
+    40% {
+        transform: translate(-120px, -49%);
+        opacity: 1;
+    }
+    50% {
+        transform: translate(-120px, -53%);
+        opacity: 1;
+    }
+    63% {
+        transform: translate(-90px, -48%);
+        opacity: 1;
+    }
+    73% {
+        transform: translate(-60px, -56%);
+        opacity: 1;
+    }
+    83% {
+        transform: translate(-30px, -48%);
+        opacity: 1;
+    }
+    95% {
+        transform: translate(0, -50%);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(0, -50%);
+        opacity: 0;
+    }
+}
+
+.animate-butterfly-flutter {
+    animation: butterfly-flutter 2s ease-in-out forwards;
+}
+
+@media (max-width: 767px) {
+    .animate-butterfly-flutter {
+        animation: butterfly-flutter-mobile 2s ease-in-out forwards;
+    }
+}
+
 /* Profile PFP slide-in animation */
 @keyframes pfp-slide-pop {
     0% {

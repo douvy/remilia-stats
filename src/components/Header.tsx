@@ -218,12 +218,12 @@ export default function Header({
   return (
     <>
       <header className="sticky top-0 z-50 bg-[#15171a] border-b border-[#1b2028] relative overflow-hidden">
-        {/* Scurrying Beetle in Header - Mobile & Desktop */}
+        {/* Scurrying Beetle / Fluttering Butterfly in Header - Mobile & Desktop */}
         {showBeetleAnimation && (
           <img
             src={`/assets/img/${beetleVariant === 'monarch' ? 'monarch' : `beetle-${beetleVariant}`}.png`}
             alt=""
-            className="absolute top-1/2 -right-4 md:right-[320px] w-8 h-8 animate-beetle-scurry pointer-events-none z-0"
+            className={`absolute top-1/2 -right-4 md:right-[320px] w-8 h-8 pointer-events-none z-0 ${beetleVariant === 'monarch' ? 'animate-butterfly-flutter' : 'animate-beetle-scurry'}`}
           />
         )}
         <div className="container mx-auto px-4 py-3">
