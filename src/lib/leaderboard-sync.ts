@@ -18,9 +18,9 @@ interface SyncMetrics {
   startTime: number;
 }
 
-const USER_BATCH_SIZE = 100; // Increased from 50
-const RATE_LIMIT_DELAY = 500; // Reduced from 1500ms
-const MAX_RETRIES = 2; // Reduced from 3
+const USER_BATCH_SIZE = 25; // Smaller batches for slow API
+const RATE_LIMIT_DELAY = 2000; // Longer delay between batches when API is slow
+const MAX_RETRIES = 3;
 const SYNC_TIMEOUT_MS = 270000; // 4.5 minutes (under Vercel's 5min limit)
 
 async function fetchWithRetry(url: string, retries = MAX_RETRIES): Promise<any> {
@@ -33,7 +33,7 @@ async function fetchWithRetry(url: string, retries = MAX_RETRIES): Promise<any> 
           'Accept': 'application/json',
           'User-Agent': 'RemiliaStats/2.0',
         },
-        signal: AbortSignal.timeout(12000), // 12s timeout per request
+        signal: AbortSignal.timeout(20000), // 20s timeout for slow API days
       });
 
       if (response.status === 429) {
@@ -191,17 +191,66 @@ export default async function computeBeetlesLeaderboard(): Promise<LeaderboardUs
   try {
     console.log('🚀 Starting leaderboard sync...');
 
+    // Get existing leaderboard to reuse cached inactive users
+    const existingData = await redis.get('beetles-leaderboard');
+    const existingUsers: LeaderboardUser[] = existingData ? JSON.parse(existingData as string) : [];
+
+    // Create map of existing users for quick lookup
+    const existingUserMap = new Map(existingUsers.map(u => [u.username, u]));
+    console.log(`📦 Found ${existingUsers.length} cached users`);
+
     // Get all users first
     const usernames = await getAllUsers();
     metrics.totalUsers = usernames.length;
 
-    const totalBatches = Math.ceil(usernames.length / USER_BATCH_SIZE);
-    const allUsers: LeaderboardUser[] = [];
+    // Separate users into active (need refresh) and potentially inactive (can cache)
+    const BEETLE_CACHE_THRESHOLD = 50; // Higher threshold for first few runs to build cache faster
+    const usersToFetch: string[] = [];
+    const cachedInactiveUsers: LeaderboardUser[] = [];
 
-    // Process users in batches
+    for (const username of usernames) {
+      const existing = existingUserMap.get(username);
+      if (existing && existing.beetles <= BEETLE_CACHE_THRESHOLD) {
+        // User has low beetles, reuse cached data
+        cachedInactiveUsers.push(existing);
+      } else {
+        // User is active or new, needs fresh data
+        usersToFetch.push(username);
+      }
+    }
+
+    console.log(`🎯 Fetching ${usersToFetch.length} active users, reusing ${cachedInactiveUsers.length} cached inactive users`);
+
+    const totalBatches = Math.ceil(usersToFetch.length / USER_BATCH_SIZE);
+    const freshlyFetchedUsers: LeaderboardUser[] = [];
+
+    // Process only active users in batches
     for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
-      const batchUsers = await processBatch(usernames, batchIndex, totalBatches, metrics);
-      allUsers.push(...batchUsers);
+      const startIndex = batchIndex * USER_BATCH_SIZE;
+      const batch = usersToFetch.slice(startIndex, startIndex + USER_BATCH_SIZE);
+
+      console.log(`🔄 Processing batch ${batchIndex + 1}/${totalBatches} (${batch.length} users)`);
+
+      const results = await Promise.allSettled(
+        batch.map(username => fetchUserProfile(username, metrics))
+      );
+
+      const validUsers: LeaderboardUser[] = [];
+      results.forEach((result, index) => {
+        if (result.status === 'fulfilled' && result.value) {
+          validUsers.push(result.value);
+        } else if (result.status === 'rejected') {
+          console.error(`Batch item failed: ${batch[index]} - ${result.reason}`);
+        }
+      });
+
+      freshlyFetchedUsers.push(...validUsers);
+
+      const progress = Math.round(((batchIndex + 1) / totalBatches) * 100);
+      const successRate = metrics.successfulFetches / (metrics.successfulFetches + metrics.failedFetches) * 100;
+      const elapsedSec = ((Date.now() - metrics.startTime) / 1000).toFixed(1);
+
+      console.log(`✅ Batch ${batchIndex + 1}/${totalBatches}: ${validUsers.length}/${batch.length} ok | ${progress}% | ${successRate.toFixed(1)}% success | ${elapsedSec}s elapsed`);
 
       // Rate limiting between batches
       if (batchIndex < totalBatches - 1) {
@@ -209,12 +258,17 @@ export default async function computeBeetlesLeaderboard(): Promise<LeaderboardUs
       }
 
       // Safety check for timeout (with 30s buffer)
-      const elapsed = Date.now() - metrics.startTime;
-      if (elapsed > SYNC_TIMEOUT_MS) {
-        console.warn(`⚠️ Sync timeout approaching at ${(elapsed / 1000).toFixed(1)}s - saving partial results`);
+      const elapsedMs = Date.now() - metrics.startTime;
+      if (elapsedMs > SYNC_TIMEOUT_MS) {
+        console.warn(`⚠️ Sync timeout approaching at ${(elapsedMs / 1000).toFixed(1)}s - saving partial results`);
         break; // Exit loop and save what we have
       }
     }
+
+    // Combine fresh data with cached inactive users
+    const allUsers = [...freshlyFetchedUsers, ...cachedInactiveUsers];
+
+    console.log(`📊 Total users: ${allUsers.length} (${freshlyFetchedUsers.length} fresh + ${cachedInactiveUsers.length} cached)`);
 
     // Validate we got data
     if (allUsers.length === 0) {

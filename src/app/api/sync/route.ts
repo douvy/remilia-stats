@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { runManualSync, getSchedulerStatus } from '@/lib/scheduler';
 
+export const maxDuration = 300;
+
 export async function POST(request: NextRequest) {
   try {
     // Check for auth in production (allow Vercel Cron or Bearer token)
