@@ -33,7 +33,7 @@ async function fetchWithRetry(url: string, retries = MAX_RETRIES): Promise<any> 
           'Accept': 'application/json',
           'User-Agent': 'RemiliaStats/2.0',
         },
-        signal: AbortSignal.timeout(8000), // 8s timeout per request
+        signal: AbortSignal.timeout(12000), // 12s timeout per request
       });
 
       if (response.status === 429) {
