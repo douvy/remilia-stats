@@ -233,25 +233,32 @@ export default async function computeBeetlesLeaderboard(): Promise<LeaderboardUs
     const totalBatches = Math.ceil(usersToFetch.length / USER_BATCH_SIZE);
     const freshlyFetchedUsers: LeaderboardUser[] = [];
 
-    // Process only active users in batches
+    // Process only active users in batches with concurrency control
+    const CONCURRENCY_LIMIT = 10; // Fetch 10 users at a time within each batch
+
     for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
       const startIndex = batchIndex * USER_BATCH_SIZE;
       const batch = usersToFetch.slice(startIndex, startIndex + USER_BATCH_SIZE);
 
       console.log(`🔄 Processing batch ${batchIndex + 1}/${totalBatches} (${batch.length} users)`);
 
-      const results = await Promise.allSettled(
-        batch.map(username => fetchUserProfile(username, metrics))
-      );
-
       const validUsers: LeaderboardUser[] = [];
-      results.forEach((result, index) => {
-        if (result.status === 'fulfilled' && result.value) {
-          validUsers.push(result.value);
-        } else if (result.status === 'rejected') {
-          console.error(`Batch item failed: ${batch[index]} - ${result.reason}`);
-        }
-      });
+
+      // Process batch in smaller concurrent chunks
+      for (let i = 0; i < batch.length; i += CONCURRENCY_LIMIT) {
+        const chunk = batch.slice(i, i + CONCURRENCY_LIMIT);
+        const results = await Promise.allSettled(
+          chunk.map(username => fetchUserProfile(username, metrics))
+        );
+
+        results.forEach((result, index) => {
+          if (result.status === 'fulfilled' && result.value) {
+            validUsers.push(result.value);
+          } else if (result.status === 'rejected') {
+            console.error(`Batch item failed: ${chunk[index]} - ${result.reason}`);
+          }
+        });
+      }
 
       freshlyFetchedUsers.push(...validUsers);
 
