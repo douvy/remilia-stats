@@ -99,14 +99,27 @@ async function getAllUsers(): Promise<string[]> {
   for (const seedUser of seedUsers) {
     try {
       console.log(`  Fetching friends for ${seedUser}...`);
-      const response = await fetchWithRetry(`https://remilia.com/api/friends?page=1&limit=10000&username=${seedUser}`);
+      // Friend list fetches can be large, use longer timeout
+      const response = await fetch(`https://remilia.com/api/friends?page=1&limit=10000&username=${seedUser}`, {
+        headers: {
+          'Accept': 'application/json',
+          'User-Agent': 'RemiliaStats/2.0',
+        },
+        signal: AbortSignal.timeout(15000), // 15s for large friend lists
+      });
 
-      if (!response?.friends || !Array.isArray(response.friends)) {
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      if (!data?.friends || !Array.isArray(data.friends)) {
         console.warn(`Invalid friends API response for ${seedUser}`);
         continue;
       }
 
-      const usernames = response.friends
+      const usernames = data.friends
         .map((friend: any) => friend.displayUsername)
         .filter((username: string) => username && username.trim());
 
