@@ -193,7 +193,16 @@ export default async function computeBeetlesLeaderboard(): Promise<LeaderboardUs
 
     // Get existing leaderboard to reuse cached inactive users
     const existingData = await redis.get('beetles-leaderboard');
-    const existingUsers: LeaderboardUser[] = existingData ? JSON.parse(existingData as string) : [];
+    let existingUsers: LeaderboardUser[] = [];
+
+    if (existingData) {
+      try {
+        // Upstash returns parsed JSON, regular Redis returns string
+        existingUsers = typeof existingData === 'string' ? JSON.parse(existingData) : existingData;
+      } catch (error) {
+        console.warn('⚠️ Failed to parse existing leaderboard, starting fresh');
+      }
+    }
 
     // Create map of existing users for quick lookup
     const existingUserMap = new Map(existingUsers.map(u => [u.username, u]));
