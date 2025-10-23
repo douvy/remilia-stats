@@ -18,7 +18,7 @@ interface SyncMetrics {
   startTime: number;
 }
 
-const USER_BATCH_SIZE = 25; // Smaller batches for slow API
+const USER_BATCH_SIZE = 50; // Smaller batches for slow API
 const RATE_LIMIT_DELAY = 2000; // Longer delay between batches when API is slow
 const MAX_RETRIES = 3;
 const SYNC_TIMEOUT_MS = 270000; // 4.5 minutes (under Vercel's 5min limit)
