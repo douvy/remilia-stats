@@ -19,9 +19,10 @@ interface SyncMetrics {
 }
 
 const USER_BATCH_SIZE = 50; // Smaller batches for slow API
-const RATE_LIMIT_DELAY = 2000; // Longer delay between batches when API is slow
+const RATE_LIMIT_DELAY = 3000; // Longer delay between batches when API is slow
 const MAX_RETRIES = 3;
 const SYNC_TIMEOUT_MS = 270000; // 4.5 minutes (under Vercel's 5min limit)
+const CONCURRENCY_LIMIT = 25; // Max concurrent requests within a batch
 
 async function fetchWithRetry(url: string, retries = MAX_RETRIES): Promise<any> {
   let lastError: Error;
@@ -233,25 +234,30 @@ export default async function computeBeetlesLeaderboard(): Promise<LeaderboardUs
     const totalBatches = Math.ceil(usersToFetch.length / USER_BATCH_SIZE);
     const freshlyFetchedUsers: LeaderboardUser[] = [];
 
-    // Process only active users in batches
+    // Process only active users in batches with concurrency control
     for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
       const startIndex = batchIndex * USER_BATCH_SIZE;
       const batch = usersToFetch.slice(startIndex, startIndex + USER_BATCH_SIZE);
 
       console.log(`🔄 Processing batch ${batchIndex + 1}/${totalBatches} (${batch.length} users)`);
 
-      const results = await Promise.allSettled(
-        batch.map(username => fetchUserProfile(username, metrics))
-      );
-
       const validUsers: LeaderboardUser[] = [];
-      results.forEach((result, index) => {
-        if (result.status === 'fulfilled' && result.value) {
-          validUsers.push(result.value);
-        } else if (result.status === 'rejected') {
-          console.error(`Batch item failed: ${batch[index]} - ${result.reason}`);
-        }
-      });
+
+      // Process batch in smaller concurrent chunks to avoid rate limits
+      for (let i = 0; i < batch.length; i += CONCURRENCY_LIMIT) {
+        const chunk = batch.slice(i, i + CONCURRENCY_LIMIT);
+        const results = await Promise.allSettled(
+          chunk.map(username => fetchUserProfile(username, metrics))
+        );
+
+        results.forEach((result, index) => {
+          if (result.status === 'fulfilled' && result.value) {
+            validUsers.push(result.value);
+          } else if (result.status === 'rejected') {
+            console.error(`Batch item failed: ${chunk[index]} - ${result.reason}`);
+          }
+        });
+      }
 
       freshlyFetchedUsers.push(...validUsers);
 
