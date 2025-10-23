@@ -61,23 +61,28 @@ export function stopLeaderboardScheduler() {
   }
 }
 
-export async function runManualSync(): Promise<void> {
-  if (isManualSyncRunning) {
+export async function runManualSync(syncPass?: { pass: number; totalPasses: number; offset: number; limit: number }): Promise<void> {
+  if (isManualSyncRunning && !syncPass) {
     throw new Error('Manual sync already in progress');
   }
 
-  isManualSyncRunning = true;
+  if (!syncPass) {
+    isManualSyncRunning = true;
+  }
+
   console.log('🔄 Starting manual sync');
 
   try {
-    await computeBeetlesLeaderboard();
+    await computeBeetlesLeaderboard(syncPass);
     console.log('✅ Manual sync completed successfully');
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('❌ Manual sync failed:', errorMessage);
     throw error;
   } finally {
-    isManualSyncRunning = false;
+    if (!syncPass || syncPass.pass === syncPass.totalPasses) {
+      isManualSyncRunning = false;
+    }
   }
 }
 

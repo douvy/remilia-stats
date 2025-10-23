@@ -179,7 +179,14 @@ async function processBatch(
   return validUsers;
 }
 
-export default async function computeBeetlesLeaderboard(): Promise<LeaderboardUser[]> {
+interface SyncPass {
+  pass: number;
+  totalPasses: number;
+  offset: number;
+  limit: number;
+}
+
+export default async function computeBeetlesLeaderboard(syncPass?: SyncPass): Promise<LeaderboardUser[]> {
   const redis = await getRedisClient();
   const metrics: SyncMetrics = {
     totalUsers: 0,
@@ -190,54 +197,33 @@ export default async function computeBeetlesLeaderboard(): Promise<LeaderboardUs
   };
 
   try {
-    console.log('🚀 Starting leaderboard sync...');
+    // Multi-pass configuration: 7 passes of 1000 users each = completes safely in ~3min per pass
+    const USERS_PER_PASS = 1000;
+    const TOTAL_PASSES = 7;
 
-    // Get existing leaderboard to reuse cached inactive users
-    const existingData = await redis.get('beetles-leaderboard');
-    let existingUsers: LeaderboardUser[] = [];
+    const currentPass = syncPass?.pass || 1;
+    const offset = syncPass?.offset || 0;
+    const limit = syncPass?.limit || USERS_PER_PASS;
 
-    if (existingData) {
-      try {
-        // Upstash returns parsed JSON, regular Redis returns string
-        existingUsers = typeof existingData === 'string' ? JSON.parse(existingData) : existingData;
-      } catch (error) {
-        console.warn('⚠️ Failed to parse existing leaderboard, starting fresh');
-      }
-    }
-
-    // Create map of existing users for quick lookup
-    const existingUserMap = new Map(existingUsers.map(u => [u.username, u]));
-    console.log(`📦 Found ${existingUsers.length} cached users`);
+    console.log(`🚀 Starting leaderboard sync - Pass ${currentPass}/${TOTAL_PASSES} (offset: ${offset})...`);
 
     // Get all users first
-    const usernames = await getAllUsers();
-    metrics.totalUsers = usernames.length;
+    const allUsernames = await getAllUsers();
+    const totalUsers = allUsernames.length;
 
-    // Separate users into active (need refresh) and potentially inactive (can cache)
-    const BEETLE_CACHE_THRESHOLD = 50; // Higher threshold for first few runs to build cache faster
-    const usersToFetch: string[] = [];
-    const cachedInactiveUsers: LeaderboardUser[] = [];
+    // Slice the user list for this pass
+    const usernamesToFetch = allUsernames.slice(offset, offset + limit);
+    metrics.totalUsers = usernamesToFetch.length;
 
-    for (const username of usernames) {
-      const existing = existingUserMap.get(username);
-      if (existing && existing.beetles <= BEETLE_CACHE_THRESHOLD) {
-        // User has low beetles, reuse cached data
-        cachedInactiveUsers.push(existing);
-      } else {
-        // User is active or new, needs fresh data
-        usersToFetch.push(username);
-      }
-    }
+    console.log(`📊 Pass ${currentPass}: Processing ${usernamesToFetch.length} of ${totalUsers} total users`);
 
-    console.log(`🎯 Fetching ${usersToFetch.length} active users, reusing ${cachedInactiveUsers.length} cached inactive users`);
-
-    const totalBatches = Math.ceil(usersToFetch.length / USER_BATCH_SIZE);
+    const totalBatches = Math.ceil(usernamesToFetch.length / USER_BATCH_SIZE);
     const freshlyFetchedUsers: LeaderboardUser[] = [];
 
-    // Process only active users in batches with concurrency control
+    // Process users in batches with concurrency control
     for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
       const startIndex = batchIndex * USER_BATCH_SIZE;
-      const batch = usersToFetch.slice(startIndex, startIndex + USER_BATCH_SIZE);
+      const batch = usernamesToFetch.slice(startIndex, startIndex + USER_BATCH_SIZE);
 
       console.log(`🔄 Processing batch ${batchIndex + 1}/${totalBatches} (${batch.length} users)`);
 
@@ -280,15 +266,62 @@ export default async function computeBeetlesLeaderboard(): Promise<LeaderboardUs
       }
     }
 
-    // Combine fresh data with cached inactive users
-    const allUsers = [...freshlyFetchedUsers, ...cachedInactiveUsers];
+    // Get existing users from previous passes (if any)
+    let allUsers = freshlyFetchedUsers;
 
-    console.log(`📊 Total users: ${allUsers.length} (${freshlyFetchedUsers.length} fresh + ${cachedInactiveUsers.length} cached)`);
+    if (currentPass > 1) {
+      const existingData = await redis.get('beetles-leaderboard-partial');
+      if (existingData) {
+        const existingUsers = typeof existingData === 'string' ? JSON.parse(existingData) : existingData;
+        console.log(`📦 Merging with ${existingUsers.length} users from previous passes`);
+        allUsers = [...existingUsers, ...freshlyFetchedUsers];
+      }
+    }
+
+    console.log(`📊 Total users so far: ${allUsers.length}`);
 
     // Validate we got data
     if (allUsers.length === 0) {
       throw new Error('No valid users retrieved - critical sync failure');
     }
+
+    // Check if this is the final pass
+    const isFinalPass = offset + limit >= totalUsers;
+
+    if (!isFinalPass) {
+      // Save partial results and trigger next pass
+      await redis.set('beetles-leaderboard-partial', JSON.stringify(allUsers), { ex: 3600 });
+      console.log(`💾 Saved partial results. Triggering pass ${currentPass + 1}...`);
+
+      // Trigger next pass asynchronously
+      const nextOffset = offset + limit;
+      const nextPass: SyncPass = {
+        pass: currentPass + 1,
+        totalPasses: TOTAL_PASSES,
+        offset: nextOffset,
+        limit: USERS_PER_PASS
+      };
+
+      // Fire and forget - trigger next pass
+      const baseUrl = process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : 'http://localhost:3000';
+
+      const syncSecret = process.env.SYNC_SECRET;
+
+      fetch(`${baseUrl}/api/sync?pass=${nextPass.pass}&offset=${nextPass.offset}&limit=${nextPass.limit}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(syncSecret ? { 'Authorization': `Bearer ${syncSecret}` } : {})
+        }
+      }).catch(err => console.error('Failed to trigger next pass:', err));
+
+      return allUsers;
+    }
+
+    // Final pass: compute full leaderboard
+    console.log(`✅ Final pass complete. Computing leaderboard for ${allUsers.length} users...`);
 
     // Sort and rank users by beetles (primary rank)
     const beetlesSorted = [...allUsers].sort((a, b) => b.beetles - a.beetles);
@@ -356,6 +389,10 @@ export default async function computeBeetlesLeaderboard(): Promise<LeaderboardUs
     };
 
     await redis.set('beetles-leaderboard-meta', JSON.stringify(metadata), { ex: 86400 });
+
+    // Clean up partial sync data
+    await redis.del('beetles-leaderboard-partial');
+    console.log('🗑️ Cleaned up partial sync data');
 
     // Clear profile caches in batches to avoid timeout
     console.log('🗑️ Clearing profile caches in batches...');

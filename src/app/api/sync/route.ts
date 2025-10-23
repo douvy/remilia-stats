@@ -18,10 +18,18 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    await runManualSync();
+    // Check for multi-pass parameters
+    const { searchParams } = new URL(request.url);
+    const pass = parseInt(searchParams.get('pass') || '1');
+    const offset = parseInt(searchParams.get('offset') || '0');
+    const limit = parseInt(searchParams.get('limit') || '1000');
+
+    const syncPass = pass > 1 ? { pass, totalPasses: 7, offset, limit } : undefined;
+
+    await runManualSync(syncPass);
     return NextResponse.json({
       success: true,
-      message: 'Manual sync completed',
+      message: `Sync pass ${pass} completed`,
       timestamp: new Date().toISOString()
     });
   } catch (error) {
