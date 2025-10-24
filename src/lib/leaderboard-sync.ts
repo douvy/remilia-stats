@@ -64,7 +64,17 @@ async function fetchWithRetry(url: string, retries = MAX_RETRIES): Promise<any> 
 }
 
 async function fetchUserProfile(username: string, metrics: SyncMetrics, redis: any): Promise<LeaderboardUser | null> {
-  // Always fetch fresh - no caching to avoid stale data breaking rankings
+  // Check cache first - using separate namespace to avoid conflicts with profile endpoint
+  const cacheKey = `leaderboard-stats:${username}`;
+  const cached = await redis.get(cacheKey);
+
+  if (cached) {
+    metrics.cacheHits++;
+    const profile = typeof cached === 'string' ? JSON.parse(cached) : cached;
+    return profile;
+  }
+
+  // Not in cache, fetch from API
   try {
     const profile = await fetchWithRetry(`https://remilia.com/api/profile/~${username}`);
 
@@ -75,6 +85,7 @@ async function fetchUserProfile(username: string, metrics: SyncMetrics, redis: a
 
     metrics.successfulFetches++;
 
+    // Cache ONLY raw stats (no rank fields) - ranks computed fresh every sync
     const userProfile: LeaderboardUser = {
       username: profile.user.username || username,
       displayName: profile.user.displayName || username,
@@ -83,6 +94,10 @@ async function fetchUserProfile(username: string, metrics: SyncMetrics, redis: a
       pokes: Number(profile.user.pokes) || 0,
       socialCredit: Number(profile.user.socialCredit?.score) || 0,
     };
+
+    // Cache for 5 hours (longer than 4hr sync interval)
+    // This ensures next sync uses cache, data refreshes every 2 sync cycles (8hrs)
+    await redis.set(cacheKey, JSON.stringify(userProfile), { ex: 18000 });
 
     return userProfile;
   } catch (error) {
