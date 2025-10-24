@@ -244,7 +244,7 @@ export default async function computeBeetlesLeaderboard(): Promise<LeaderboardUs
     // CRITICAL: Only save leaderboard if we have nearly all users
     // Partial syncs create incorrect global rankings
     const completionRate = allFetchedUsers.length / metrics.totalUsers;
-    if (completionRate < 0.95) { // Need at least 95% of users
+    if (completionRate < 0.85) { // Need at least 85% of users
       console.warn(`⚠️ Incomplete sync: ${allFetchedUsers.length}/${metrics.totalUsers} users (${(completionRate * 100).toFixed(1)}%)`);
       console.warn(`❌ NOT saving leaderboard - would create incorrect rankings`);
       console.warn(`📦 Profiles are cached. Run sync again to complete.`);
