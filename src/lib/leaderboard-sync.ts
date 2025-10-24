@@ -228,10 +228,9 @@ export default async function computeBeetlesLeaderboard(): Promise<LeaderboardUs
         await new Promise(resolve => setTimeout(resolve, RATE_LIMIT_DELAY));
       }
 
-      // For background function: no timeout limit, let it run as long as needed
-      // For regular function: will timeout at 5min but save progress
+      // Safety timeout check - with Fluid Compute we have 800s (13.3min)
       const elapsedMs = Date.now() - metrics.startTime;
-      if (elapsedMs > 270000) { // 4.5 minutes
+      if (elapsedMs > 750000) { // 12.5 minutes (leave 50s buffer)
         console.warn(`⚠️ Approaching timeout at ${(elapsedMs / 1000).toFixed(1)}s - saving ${allFetchedUsers.length} users`);
         break;
       }
@@ -242,7 +241,18 @@ export default async function computeBeetlesLeaderboard(): Promise<LeaderboardUs
       throw new Error('No valid users retrieved - critical sync failure');
     }
 
-    console.log(`📊 Successfully processed ${allFetchedUsers.length} of ${metrics.totalUsers} users (Cache: ${metrics.cacheHits}, API: ${metrics.successfulFetches})`);
+    // CRITICAL: Only save leaderboard if we have nearly all users
+    // Partial syncs create incorrect global rankings
+    const completionRate = allFetchedUsers.length / metrics.totalUsers;
+    if (completionRate < 0.95) { // Need at least 95% of users
+      console.warn(`⚠️ Incomplete sync: ${allFetchedUsers.length}/${metrics.totalUsers} users (${(completionRate * 100).toFixed(1)}%)`);
+      console.warn(`❌ NOT saving leaderboard - would create incorrect rankings`);
+      console.warn(`📦 Profiles are cached. Run sync again to complete.`);
+      throw new Error(`INCOMPLETE_SYNC: Only ${allFetchedUsers.length}/${metrics.totalUsers} users fetched`);
+    }
+
+    console.log(`✅ Complete sync: ${allFetchedUsers.length} of ${metrics.totalUsers} users (${(completionRate * 100).toFixed(1)}%)`);
+    console.log(`📊 Cache: ${metrics.cacheHits}, API: ${metrics.successfulFetches}`);
 
     // Sort and rank
     const beetlesSorted = [...allFetchedUsers].sort((a, b) => b.beetles - a.beetles);
