@@ -128,7 +128,7 @@ async function getAllUsers(redis: any): Promise<string[]> {
           'Accept': 'application/json',
           'User-Agent': 'RemiliaStats/2.0',
         },
-        signal: AbortSignal.timeout(60000), // 60s for large friend lists
+        signal: AbortSignal.timeout(120000), // 2min for large friend lists
       });
 
       if (!response.ok) {
