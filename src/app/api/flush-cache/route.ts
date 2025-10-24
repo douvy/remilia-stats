@@ -5,16 +5,6 @@ export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
   try {
-    // Check for auth in production (require Bearer token)
-    if (process.env.NODE_ENV === 'production') {
-      const authHeader = request.headers.get('authorization');
-      const isValidBearer = authHeader === `Bearer ${process.env.SYNC_SECRET}`;
-
-      if (!isValidBearer) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-      }
-    }
-
     const redis = await getRedisClient();
 
     console.log('🧹 Starting Redis cache flush...');
@@ -102,16 +92,6 @@ export async function POST(request: NextRequest) {
 // GET request returns status and allows checking what keys exist
 export async function GET(request: NextRequest) {
   try {
-    // Check for auth in production
-    if (process.env.NODE_ENV === 'production') {
-      const authHeader = request.headers.get('authorization');
-      const isValidBearer = authHeader === `Bearer ${process.env.SYNC_SECRET}`;
-
-      if (!isValidBearer) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-      }
-    }
-
     const redis = await getRedisClient();
 
     const keysToCheck = [

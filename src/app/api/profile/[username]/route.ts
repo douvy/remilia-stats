@@ -16,7 +16,16 @@ export async function GET(
     const cachedData = await redis.get(cacheKey);
     if (cachedData) {
       const parsed = typeof cachedData === 'string' ? JSON.parse(cachedData) : cachedData;
-      return NextResponse.json(parsed);
+
+      // Check if this is the full API response (has .user) or just the user object
+      if (parsed.user) {
+        // Full cached response from this endpoint
+        return NextResponse.json(parsed);
+      } else if (parsed.username) {
+        // Cached from leaderboard sync - needs to be wrapped
+        // Skip cache and fetch fresh data to get full profile details
+        // (leaderboard cache only has basic stats, not bio, friends, etc)
+      }
     }
 
     // Fetch from Remilia API
