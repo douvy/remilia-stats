@@ -228,10 +228,11 @@ export default async function computeBeetlesLeaderboard(): Promise<LeaderboardUs
         await new Promise(resolve => setTimeout(resolve, RATE_LIMIT_DELAY));
       }
 
-      // Safety timeout check - save what we have if approaching limit
+      // For background function: no timeout limit, let it run as long as needed
+      // For regular function: will timeout at 5min but save progress
       const elapsedMs = Date.now() - metrics.startTime;
       if (elapsedMs > 270000) { // 4.5 minutes
-        console.warn(`⚠️ Approaching 5min timeout at ${(elapsedMs / 1000).toFixed(1)}s - saving ${allFetchedUsers.length} users`);
+        console.warn(`⚠️ Approaching timeout at ${(elapsedMs / 1000).toFixed(1)}s - saving ${allFetchedUsers.length} users`);
         break;
       }
     }
