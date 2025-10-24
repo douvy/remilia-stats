@@ -19,10 +19,10 @@ interface SyncMetrics {
   startTime: number;
 }
 
-const USER_BATCH_SIZE = 75;
-const RATE_LIMIT_DELAY = 3000;
-const MAX_RETRIES = 3;
-const CONCURRENCY_LIMIT = 25;
+const USER_BATCH_SIZE = 120; // Larger batches = fewer total batches
+const RATE_LIMIT_DELAY = 500; // Fast but measured
+const MAX_RETRIES = 3; // Handle rate limits with retries
+const CONCURRENCY_LIMIT = 30; // High parallelism for speed
 
 async function fetchWithRetry(url: string, retries = MAX_RETRIES): Promise<any> {
   let lastError: Error;
@@ -217,7 +217,7 @@ export default async function computeBeetlesLeaderboard(): Promise<LeaderboardUs
 
       // Safety timeout check - with Fluid Compute we have 800s (13.3min)
       const elapsedMs = Date.now() - metrics.startTime;
-      if (elapsedMs > 750000) { // 12.5 minutes (leave 50s buffer)
+      if (elapsedMs > 780000) { // 13 minutes (leave 20s buffer for saving to Redis)
         console.warn(`⚠️ Approaching timeout at ${(elapsedMs / 1000).toFixed(1)}s - saving ${allFetchedUsers.length} users`);
         break;
       }
@@ -234,7 +234,7 @@ export default async function computeBeetlesLeaderboard(): Promise<LeaderboardUs
     if (completionRate < 0.85) { // Need at least 85% of users
       console.warn(`⚠️ Incomplete sync: ${allFetchedUsers.length}/${metrics.totalUsers} users (${(completionRate * 100).toFixed(1)}%)`);
       console.warn(`❌ NOT saving leaderboard - would create incorrect rankings`);
-      console.warn(`📦 Profiles are cached. Run sync again to complete.`);
+      console.warn(`⚠️ Sync timed out before completing. Will retry on next scheduled run.`);
       throw new Error(`INCOMPLETE_SYNC: Only ${allFetchedUsers.length}/${metrics.totalUsers} users fetched`);
     }
 
