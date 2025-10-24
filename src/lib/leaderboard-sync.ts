@@ -19,10 +19,10 @@ interface SyncMetrics {
   startTime: number;
 }
 
-const USER_BATCH_SIZE = 120; // Larger batches = fewer total batches
-const RATE_LIMIT_DELAY = 500; // Fast but measured
+const USER_BATCH_SIZE = 50; // Conservative to avoid overwhelming API
+const RATE_LIMIT_DELAY = 1500; // Generous delay between batches
 const MAX_RETRIES = 3; // Handle rate limits with retries
-const CONCURRENCY_LIMIT = 30; // High parallelism for speed
+const CONCURRENCY_LIMIT = 15; // Lower concurrency to reduce burst rate
 
 async function fetchWithRetry(url: string, retries = MAX_RETRIES): Promise<any> {
   let lastError: Error;
