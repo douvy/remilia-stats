@@ -19,7 +19,7 @@ interface SyncMetrics {
   startTime: number;
 }
 
-const USER_BATCH_SIZE = 50;
+const USER_BATCH_SIZE = 75;
 const RATE_LIMIT_DELAY = 3000;
 const MAX_RETRIES = 3;
 const CONCURRENCY_LIMIT = 25;
