@@ -64,17 +64,7 @@ async function fetchWithRetry(url: string, retries = MAX_RETRIES): Promise<any> 
 }
 
 async function fetchUserProfile(username: string, metrics: SyncMetrics, redis: any): Promise<LeaderboardUser | null> {
-  // Check cache first
-  const cacheKey = `profile:${username}`;
-  const cached = await redis.get(cacheKey);
-
-  if (cached) {
-    metrics.cacheHits++;
-    const profile = typeof cached === 'string' ? JSON.parse(cached) : cached;
-    return profile;
-  }
-
-  // Not in cache, fetch from API
+  // Always fetch fresh - no caching to avoid stale data breaking rankings
   try {
     const profile = await fetchWithRetry(`https://remilia.com/api/profile/~${username}`);
 
@@ -93,9 +83,6 @@ async function fetchUserProfile(username: string, metrics: SyncMetrics, redis: a
       pokes: Number(profile.user.pokes) || 0,
       socialCredit: Number(profile.user.socialCredit?.score) || 0,
     };
-
-    // Cache for 6 hours (longer than 4hr sync interval to ensure cache persists)
-    await redis.set(cacheKey, JSON.stringify(userProfile), { ex: 21600 });
 
     return userProfile;
   } catch (error) {
@@ -221,7 +208,7 @@ export default async function computeBeetlesLeaderboard(): Promise<LeaderboardUs
       const successRate = metrics.successfulFetches / (metrics.successfulFetches + metrics.failedFetches) * 100;
       const elapsedSec = ((Date.now() - metrics.startTime) / 1000).toFixed(1);
 
-      console.log(`✅ Batch ${batchIndex + 1}/${totalBatches}: ${validUsers.length}/${batch.length} ok | ${progress}% | Cache: ${metrics.cacheHits} | API: ${metrics.successfulFetches} | ${elapsedSec}s elapsed`);
+      console.log(`✅ Batch ${batchIndex + 1}/${totalBatches}: ${validUsers.length}/${batch.length} ok | ${progress}% | API: ${metrics.successfulFetches} | ${elapsedSec}s elapsed`);
 
       // Rate limiting between batches
       if (batchIndex < totalBatches - 1) {
@@ -252,7 +239,7 @@ export default async function computeBeetlesLeaderboard(): Promise<LeaderboardUs
     }
 
     console.log(`✅ Complete sync: ${allFetchedUsers.length} of ${metrics.totalUsers} users (${(completionRate * 100).toFixed(1)}%)`);
-    console.log(`📊 Cache: ${metrics.cacheHits}, API: ${metrics.successfulFetches}`);
+    console.log(`📊 API calls: ${metrics.successfulFetches}, Failed: ${metrics.failedFetches}`);
 
     // Sort and rank
     const beetlesSorted = [...allFetchedUsers].sort((a, b) => b.beetles - a.beetles);
