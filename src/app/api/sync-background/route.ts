@@ -27,3 +27,27 @@ export async function POST(request: NextRequest) {
     }, { status: 500 });
   }
 }
+
+export async function GET(request: NextRequest) {
+  // Allow Vercel Cron and manual browser access
+  try {
+    console.log('🚀 Starting sync with Fluid Compute (13min limit)...');
+
+    const result = await computeBeetlesLeaderboard();
+
+    return NextResponse.json({
+      success: true,
+      message: 'Sync completed successfully',
+      usersProcessed: result.length,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error('❌ Sync failed:', message);
+
+    return NextResponse.json({
+      success: false,
+      error: message
+    }, { status: 500 });
+  }
+}
