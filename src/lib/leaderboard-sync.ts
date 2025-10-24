@@ -106,8 +106,16 @@ async function fetchUserProfile(username: string, metrics: SyncMetrics, redis: a
   }
 }
 
-async function getAllUsers(): Promise<string[]> {
-  console.log('🔄 Fetching complete user list from multiple seed users...');
+async function getAllUsers(redis: any): Promise<string[]> {
+  // Check if we have a cached user list (valid for 24 hours)
+  const cachedList = await redis.get('user-list-cache');
+  if (cachedList) {
+    const usernames = typeof cachedList === 'string' ? JSON.parse(cachedList) : cachedList;
+    console.log(`✅ Using cached user list (${usernames.length} users)`);
+    return usernames;
+  }
+
+  console.log('🔄 Fetching fresh user list from API...');
 
   const seedUsers = ['remilia_jackson', 'xultra'];
   const allUsernames = new Set<string>();
@@ -149,6 +157,11 @@ async function getAllUsers(): Promise<string[]> {
 
   const finalUsernames = Array.from(allUsernames);
   console.log(`✅ Found ${finalUsernames.length} unique users to process`);
+
+  // Cache the user list for 24 hours
+  await redis.set('user-list-cache', JSON.stringify(finalUsernames), { ex: 86400 });
+  console.log('💾 Cached user list for 24 hours');
+
   return finalUsernames;
 }
 
@@ -171,7 +184,7 @@ export default async function computeBeetlesLeaderboard(): Promise<LeaderboardUs
     console.log('🚀 Starting leaderboard sync...');
 
     // Get all users
-    const allUsernames = await getAllUsers();
+    const allUsernames = await getAllUsers(redis);
     metrics.totalUsers = allUsernames.length;
 
     const totalBatches = Math.ceil(allUsernames.length / USER_BATCH_SIZE);
