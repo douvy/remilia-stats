@@ -62,26 +62,11 @@ export async function GET(
       }
     }
 
-    // Get lastUpdated from leaderboard meta to stay in sync
-    let lastUpdated = new Date().toISOString();
-    try {
-      const metaData = await redis.get('beetles-leaderboard-meta');
-      if (metaData) {
-        const meta = typeof metaData === 'string' ? JSON.parse(metaData) : metaData;
-        if (meta.lastUpdated) {
-          lastUpdated = meta.lastUpdated;
-        }
-      }
-    } catch (metaError) {
-      console.warn('Failed to read leaderboard meta:', metaError);
-      // Use current time as fallback
-    }
-
-    // Add lastUpdated timestamp from leaderboard sync
+    // Set lastUpdated to current time since we just fetched fresh data
     const enrichedData = {
       ...data,
       meta: {
-        lastUpdated,
+        lastUpdated: new Date().toISOString(),
       }
     };
 
