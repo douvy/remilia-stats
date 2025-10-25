@@ -160,6 +160,13 @@ async function getAllUsers(redis: any): Promise<string[]> {
   const finalUsernames = Array.from(allUsernames);
   console.log(`✅ Found ${finalUsernames.length} unique users to process`);
 
+  // Safety check: Don't cache if we got suspiciously few users
+  if (finalUsernames.length < 100) {
+    console.error(`⚠️ Only found ${finalUsernames.length} users - friends API likely failed`);
+    console.error(`❌ Not caching user list to prevent corruption`);
+    throw new Error(`Failed to fetch user list: only ${finalUsernames.length} users found (expected 6000+)`);
+  }
+
   // Cache the user list for 24 hours
   await redis.set('user-list-cache', JSON.stringify(finalUsernames), { ex: 86400 });
   console.log('💾 Cached user list for 24 hours');
