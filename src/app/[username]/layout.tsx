@@ -8,12 +8,15 @@ export async function generateMetadata({
   const { username } = await params;
 
   try {
-    const response = await fetch(`https://remilia.com/api/profile/~${username}`, {
+    // Use internal API route to benefit from 2-minute cache
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ||
+                    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+
+    const response = await fetch(`${baseUrl}/api/profile/${username}`, {
       headers: {
         'Accept': 'application/json',
-        'User-Agent': 'RemiliaStats/1.0',
       },
-      next: { revalidate: 14400 }, // 4 hours
+      next: { revalidate: 120 }, // 2 minutes - matches API cache
     });
 
     if (response.ok) {

@@ -106,9 +106,9 @@ export default function UserProfilePage() {
       try {
         // Fetch profile and leaderboard rank in parallel
         const [profileRes, rankRes, statsRes] = await Promise.all([
-          fetch(`/api/profile/${username}`),
-          fetch(`/api/leaderboard?search=${username}&limit=1`),
-          fetch(`/api/leaderboard?limit=1`), // Get total user count
+          fetch(`/api/profile/${username}`, { cache: 'no-store' }),
+          fetch(`/api/leaderboard?search=${username}&limit=1`, { cache: 'no-store' }),
+          fetch(`/api/leaderboard?limit=1`, { cache: 'no-store' }), // Get total user count
         ]);
 
         if (!profileRes.ok) throw new Error("Profile not found");
@@ -184,6 +184,7 @@ export default function UserProfilePage() {
             try {
               const friendRes = await fetch(
                 `/api/profile/${friend.displayUsername}`,
+                { cache: 'no-store' }
               );
               if (friendRes.ok) {
                 const friendData = await friendRes.json();
