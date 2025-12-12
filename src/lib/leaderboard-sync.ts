@@ -129,16 +129,31 @@ async function getAllUsers(redis: any): Promise<string[]> {
       let totalFetched = 0;
 
       while (true) {
-        const response = await fetch(`https://www.remilia.com/identity/friends?page=${page}&limit=100&username=${seedUser}`, {
-          headers: {
-            'Accept': 'application/json',
-            'User-Agent': 'RemiliaStats/2.0',
-          },
-          signal: AbortSignal.timeout(30000),
-        });
+        let response: Response | null = null;
+        let retries = 0;
+        const maxRetries = 5;
 
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        while (retries < maxRetries) {
+          response = await fetch(`https://www.remilia.com/identity/friends?page=${page}&limit=100&username=${seedUser}`, {
+            headers: {
+              'Accept': 'application/json',
+              'User-Agent': 'RemiliaStats/2.0',
+            },
+            signal: AbortSignal.timeout(30000),
+          });
+
+          if (response.status === 429) {
+            retries++;
+            const backoff = Math.min(2000 * Math.pow(2, retries), 30000);
+            console.log(`  ⏳ Rate limited on page ${page}, waiting ${backoff / 1000}s (retry ${retries}/${maxRetries})`);
+            await new Promise(resolve => setTimeout(resolve, backoff));
+            continue;
+          }
+          break;
+        }
+
+        if (!response || !response.ok) {
+          throw new Error(`HTTP ${response?.status}: ${response?.statusText}`);
         }
 
         const data = await response.json();
@@ -163,8 +178,8 @@ async function getAllUsers(redis: any): Promise<string[]> {
         }
 
         page++;
-        // Small delay between pages to be nice to the API
-        await new Promise(resolve => setTimeout(resolve, 200));
+        // Delay between pages to avoid rate limits
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
 
       console.log(`  ✅ Fetched ${totalFetched} total friends for ${seedUser}`);
