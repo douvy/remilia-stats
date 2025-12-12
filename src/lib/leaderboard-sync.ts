@@ -125,37 +125,49 @@ async function getAllUsers(redis: any): Promise<string[]> {
   for (const seedUser of seedUsers) {
     try {
       console.log(`  Fetching friends for ${seedUser}...`);
-      const response = await fetch(`https://www.remilia.com/identity/friends?page=1&limit=10000&username=${seedUser}`, {
-        headers: {
-          'Accept': 'application/json',
-          'User-Agent': 'RemiliaStats/2.0',
-        },
-        signal: AbortSignal.timeout(120000), // 2min for large friend lists
-      });
+      let page = 1;
+      let totalFetched = 0;
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      while (true) {
+        const response = await fetch(`https://www.remilia.com/identity/friends?page=${page}&limit=100&username=${seedUser}`, {
+          headers: {
+            'Accept': 'application/json',
+            'User-Agent': 'RemiliaStats/2.0',
+          },
+          signal: AbortSignal.timeout(30000),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        if (!data?.friends || !Array.isArray(data.friends)) {
+          console.error(`❌ Invalid friends API response for ${seedUser} page ${page}:`, JSON.stringify(data).slice(0, 200));
+          break;
+        }
+
+        const usernames = data.friends
+          .map((friend: any) => friend.displayUsername)
+          .filter((username: string) => username && username.trim());
+
+        usernames.forEach((username: string) => allUsernames.add(username));
+        totalFetched += usernames.length;
+
+        console.log(`  Page ${page}: ${usernames.length} friends (${totalFetched} total for ${seedUser})`);
+
+        // If we got fewer than 100, we've reached the last page
+        if (data.friends.length < 100) {
+          break;
+        }
+
+        page++;
+        // Small delay between pages to be nice to the API
+        await new Promise(resolve => setTimeout(resolve, 200));
       }
 
-      const data = await response.json();
-
-      if (!data?.friends || !Array.isArray(data.friends)) {
-        console.error(`❌ Invalid friends API response for ${seedUser}:`, JSON.stringify(data).slice(0, 200));
-        continue;
-      }
-
-      console.log(`  API returned ${data.friends.length} friends for ${seedUser}`);
-
-      const usernames = data.friends
-        .map((friend: any) => friend.displayUsername)
-        .filter((username: string) => username && username.trim());
-
-      if (usernames.length < data.friends.length * 0.9) {
-        console.warn(`  ⚠️ ${data.friends.length - usernames.length} friends missing displayUsername`);
-      }
-
-      usernames.forEach((username: string) => allUsernames.add(username));
-      console.log(`  ✅ Added ${usernames.length} valid usernames from ${seedUser}`);
+      console.log(`  ✅ Fetched ${totalFetched} total friends for ${seedUser}`);
     } catch (error) {
       console.error(`Failed to fetch friends for ${seedUser}:`, error);
     }
