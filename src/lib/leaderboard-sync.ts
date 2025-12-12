@@ -140,16 +140,22 @@ async function getAllUsers(redis: any): Promise<string[]> {
       const data = await response.json();
 
       if (!data?.friends || !Array.isArray(data.friends)) {
-        console.warn(`Invalid friends API response for ${seedUser}`);
+        console.error(`❌ Invalid friends API response for ${seedUser}:`, JSON.stringify(data).slice(0, 200));
         continue;
       }
+
+      console.log(`  API returned ${data.friends.length} friends for ${seedUser}`);
 
       const usernames = data.friends
         .map((friend: any) => friend.displayUsername)
         .filter((username: string) => username && username.trim());
 
+      if (usernames.length < data.friends.length * 0.9) {
+        console.warn(`  ⚠️ ${data.friends.length - usernames.length} friends missing displayUsername`);
+      }
+
       usernames.forEach((username: string) => allUsernames.add(username));
-      console.log(`  Found ${usernames.length} friends for ${seedUser}`);
+      console.log(`  ✅ Added ${usernames.length} valid usernames from ${seedUser}`);
     } catch (error) {
       console.error(`Failed to fetch friends for ${seedUser}:`, error);
     }
@@ -161,7 +167,7 @@ async function getAllUsers(redis: any): Promise<string[]> {
   console.log(`✅ Found ${finalUsernames.length} unique users to process`);
 
   // Safety check: Don't cache if we got suspiciously few users
-  if (finalUsernames.length < 100) {
+  if (finalUsernames.length < 3000) {
     console.error(`⚠️ Only found ${finalUsernames.length} users - friends API likely failed`);
     console.error(`❌ Not caching user list to prevent corruption`);
     throw new Error(`Failed to fetch user list: only ${finalUsernames.length} users found (expected 6000+)`);
