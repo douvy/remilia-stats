@@ -125,10 +125,40 @@ async function getAllUsers(redis: any): Promise<string[]> {
   for (const seedUser of seedUsers) {
     try {
       console.log(`  Fetching friends for ${seedUser}...`);
+
+      // Check for saved progress (resume from where we left off)
+      const progressKey = `friends-progress:${seedUser}`;
+      const savedProgress = await redis.get(progressKey);
       let page = 1;
       let totalFetched = 0;
 
+      if (savedProgress) {
+        const progress = typeof savedProgress === 'string' ? JSON.parse(savedProgress) : savedProgress;
+        page = progress.nextPage || 1;
+        if (progress.usernames) {
+          progress.usernames.forEach((u: string) => allUsernames.add(u));
+          totalFetched = progress.usernames.length;
+        }
+        console.log(`  📍 Resuming from page ${page} (${totalFetched} users already fetched)`);
+      }
+
+      const startTime = Date.now();
+      const maxTimePerSeed = 300000; // 5 min max per seed user
+      let completed = false;
+
       while (true) {
+        // Time check - save progress if running long
+        if (Date.now() - startTime > maxTimePerSeed) {
+          console.log(`  ⏱️ Time limit reached for ${seedUser}, saving progress at page ${page}`);
+          const currentUsernames = Array.from(allUsernames);
+          await redis.set(progressKey, JSON.stringify({
+            nextPage: page,
+            usernames: currentUsernames,
+            timestamp: Date.now()
+          }), { ex: 86400 });
+          break;
+        }
+
         let response: Response | null = null;
         let retries = 0;
         const maxRetries = 5;
@@ -144,7 +174,7 @@ async function getAllUsers(redis: any): Promise<string[]> {
 
           if (response.status === 429) {
             retries++;
-            const backoff = Math.min(2000 * Math.pow(2, retries), 30000);
+            const backoff = Math.min(4000 * Math.pow(2, retries), 60000);
             console.log(`  ⏳ Rate limited on page ${page}, waiting ${backoff / 1000}s (retry ${retries}/${maxRetries})`);
             await new Promise(resolve => setTimeout(resolve, backoff));
             continue;
@@ -153,6 +183,13 @@ async function getAllUsers(redis: any): Promise<string[]> {
         }
 
         if (!response || !response.ok) {
+          // Save progress before failing
+          const currentUsernames = Array.from(allUsernames);
+          await redis.set(progressKey, JSON.stringify({
+            nextPage: page,
+            usernames: currentUsernames,
+            timestamp: Date.now()
+          }), { ex: 86400 });
           throw new Error(`HTTP ${response?.status}: ${response?.statusText}`);
         }
 
@@ -174,15 +211,17 @@ async function getAllUsers(redis: any): Promise<string[]> {
 
         // If we got fewer than 100, we've reached the last page
         if (data.friends.length < 100) {
+          completed = true;
+          await redis.del(progressKey); // Clear progress - we're done
           break;
         }
 
         page++;
-        // Delay between pages to avoid rate limits
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // 2s delay to avoid rate limits (~30 pages/min)
+        await new Promise(resolve => setTimeout(resolve, 2000));
       }
 
-      console.log(`  ✅ Fetched ${totalFetched} total friends for ${seedUser}`);
+      console.log(`  ✅ Fetched ${totalFetched} total friends for ${seedUser}${completed ? ' (complete)' : ' (partial, will resume)'}`);
     } catch (error) {
       console.error(`Failed to fetch friends for ${seedUser}:`, error);
     }
