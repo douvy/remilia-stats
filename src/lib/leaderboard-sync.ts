@@ -233,7 +233,7 @@ async function getAllUsers(redis: any): Promise<string[]> {
   console.log(`✅ Found ${finalUsernames.length} unique users to process`);
 
   // Safety check: Don't cache if we got suspiciously few users
-  if (finalUsernames.length < 6000) {
+  if (finalUsernames.length < 6500) {
     console.error(`⚠️ Only found ${finalUsernames.length} users - friends API likely failed`);
     console.error(`❌ Not caching user list to prevent corruption`);
     throw new Error(`Failed to fetch user list: only ${finalUsernames.length} users found (expected 7000+)`);
