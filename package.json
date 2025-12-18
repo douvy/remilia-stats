@@ -18,7 +18,7 @@
     "dotenv": "^17.2.3",
     "html-to-image": "^1.11.13",
     "html2canvas": "^1.4.1",
-    "next": "^16.0.7",
+    "next": "16.0.10",
     "node-cron": "^3.0.3",
     "react": "19.0.0",
     "react-dom": "19.0.0",
