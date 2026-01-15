@@ -8,11 +8,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Missing url parameter" }, { status: 400 });
   }
 
-  // Only allow proxying from remilia.com domains
+  // Only allow proxying from remilia.net domains
   const allowedDomains = [
-    "https://remilia.com/",
-    "https://static.remilia.com/",
-    "https://pfp.remilia.com/"
+    "https://remilia.net/",
+    "https://www.remilia.net/",
+    "https://static.remilia.net/",
+    "https://pfp.remilia.net/"
   ];
 
   if (!allowedDomains.some(domain => url.startsWith(domain))) {

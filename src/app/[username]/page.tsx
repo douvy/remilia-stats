@@ -349,7 +349,7 @@ export default function UserProfilePage() {
                     <div
                       className="absolute inset-0 bg-cover bg-center"
                       style={{
-                        backgroundImage: `url(https://remilia.com/covers/${profile.cover}.png)`,
+                        backgroundImage: `url(https://www.remilia.net/covers/${profile.cover}.png)`,
                         imageRendering: "pixelated",
                         filter: "contrast(1.1) saturate(0.9) brightness(1.1)",
                       }}
@@ -488,7 +488,7 @@ export default function UserProfilePage() {
 
                 {/* View on RemiliaNET */}
                 <a
-                  href={`https://remilia.com/~${profile.username}`}
+                  href={`https://www.remilia.net/~${profile.username}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-block mt-6 px-3 py-2 bg-primary-blue text-[#f1f2f4] rounded-md hover:bg-primary-dark-blue transition-colors shadow-[inset_0_-2px_0_0_#16368e] hover:shadow-[inset_0_-2px_0_0_#0d1b45] text-sm"

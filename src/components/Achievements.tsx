@@ -33,7 +33,7 @@ export default function Achievements({
               }}
             >
               <img
-                src={`https://remilia.com/images/achievements/pfp-${String(achievement.id).padStart(3, "0")}.png`}
+                src={`https://www.remilia.net/images/achievements/pfp-${String(achievement.id).padStart(3, "0")}.png`}
                 alt={achievement.title}
                 className="w-10 h-10 md:w-12 md:h-12 rounded-md flex-shrink-0"
                 onError={(e) => {

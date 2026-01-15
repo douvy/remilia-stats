@@ -35,7 +35,7 @@ export default function Friends({
                   <div
                     className="absolute inset-0 bg-cover bg-center"
                     style={{
-                      backgroundImage: `url(https://remilia.com/covers/${friend.cover}.png)`,
+                      backgroundImage: `url(https://www.remilia.net/covers/${friend.cover}.png)`,
                       imageRendering: "pixelated",
                       filter: "contrast(1.1) saturate(0.9) brightness(0.85)",
                     }}

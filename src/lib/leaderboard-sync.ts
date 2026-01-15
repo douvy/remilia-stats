@@ -76,7 +76,7 @@ async function fetchUserProfile(username: string, metrics: SyncMetrics, redis: a
 
   // Not in cache, fetch from API
   try {
-    const profile = await fetchWithRetry(`https://www.remilia.com/api/profile/~${username}`);
+    const profile = await fetchWithRetry(`https://www.remilia.net/api/profile/~${username}`);
 
     if (!profile?.user) {
       console.warn(`Invalid profile structure for: ${username}`);
@@ -164,7 +164,7 @@ async function getAllUsers(redis: any): Promise<string[]> {
         const maxRetries = 5;
 
         while (retries < maxRetries) {
-          response = await fetch(`https://www.remilia.com/identity/friends?page=${page}&limit=100&username=${seedUser}`, {
+          response = await fetch(`https://www.remilia.net/identity/friends?page=${page}&limit=100&username=${seedUser}`, {
             headers: {
               'Accept': 'application/json',
               'User-Agent': 'RemiliaStats/2.0',

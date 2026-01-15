@@ -282,7 +282,7 @@ export default function ShareStatsModal({
                 <div
                   className="absolute inset-0 bg-cover bg-center"
                   style={{
-                    backgroundImage: `url(https://remilia.com/covers/${cover}.png)`,
+                    backgroundImage: `url(https://www.remilia.net/covers/${cover}.png)`,
                     imageRendering: "pixelated",
                     filter: "contrast(1.1) saturate(0.9) brightness(1.1)",
                   }}
