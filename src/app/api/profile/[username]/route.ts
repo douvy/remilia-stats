@@ -24,7 +24,7 @@ export async function GET(
 
     // Fetch fresh from API
     const response = await fetch(
-      `https://www.remilia.net/api/profile/~${username}`,
+      `https://www.remilia.net/identity/profile/${username}`,
       {
         headers: {
           'Accept': 'application/json',
