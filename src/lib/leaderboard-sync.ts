@@ -76,7 +76,7 @@ async function fetchUserProfile(username: string, metrics: SyncMetrics, redis: a
 
   // Not in cache, fetch from API
   try {
-    const profile = await fetchWithRetry(`https://www.remilia.net/identity/profile/${username}`);
+    const profile = await fetchWithRetry(`https://www.remilia.net/api/profile/~${username}`);
 
     if (!profile?.user) {
       console.warn(`Invalid profile structure for: ${username}`);
