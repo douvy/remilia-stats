@@ -164,7 +164,7 @@ async function getAllUsers(redis: any): Promise<string[]> {
         const maxRetries = 5;
 
         while (retries < maxRetries) {
-          response = await fetch(`https://www.remilia.net/identity/friends?page=${page}&limit=100&username=${seedUser}`, {
+          response = await fetch(`https://www.remilia.net/api/profile/friends?username=${seedUser}&page=${page}&limit=100`, {
             headers: {
               'Accept': 'application/json',
               'User-Agent': 'RemiliaStats/2.0',
