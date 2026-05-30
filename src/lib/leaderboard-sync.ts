@@ -201,7 +201,7 @@ async function getAllUsers(redis: any): Promise<string[]> {
         }
 
         const usernames = data.friends
-          .map((friend: any) => friend.displayUsername)
+          .map((friend: any) => friend.user?.userHandle)
           .filter((username: string) => username && username.trim());
 
         usernames.forEach((username: string) => allUsernames.add(username));
