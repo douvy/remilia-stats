@@ -209,8 +209,8 @@ async function getAllUsers(redis: any): Promise<string[]> {
 
         console.log(`  Page ${page}: ${usernames.length} friends (${totalFetched} total for ${seedUser})`);
 
-        // If we got fewer than 100, we've reached the last page
-        if (data.friends.length < 100) {
+        // Check if there are more pages
+        if (!data.pagination?.hasMore) {
           completed = true;
           await redis.del(progressKey); // Clear progress - we're done
           break;
