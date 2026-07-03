@@ -1,4 +1,5 @@
 import { getRedisClient } from './redis';
+import { normalizePfpUrl } from './pfp';
 
 interface LeaderboardUser {
   username: string;
@@ -89,7 +90,7 @@ async function fetchUserProfile(username: string, metrics: SyncMetrics, redis: a
     const userProfile: LeaderboardUser = {
       username: profile.user.username || username,
       displayName: profile.user.displayName || username,
-      pfpUrl: profile.user.pfpUrl || '',
+      pfpUrl: normalizePfpUrl(profile.user.pfpUrl),
       beetles: Number(profile.user.beetles) || 0,
       pokes: Number(profile.user.pokes) || 0,
       socialCredit: Number(profile.user.socialCredit?.score) || 0,

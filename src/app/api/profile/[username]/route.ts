@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getRedisClient } from '@/lib/redis';
+import { normalizePfpUrl } from '@/lib/pfp';
 
 export async function GET(
   request: Request,
@@ -41,6 +42,16 @@ export async function GET(
     }
 
     const data = await response.json();
+
+    // Normalize relative pfp URLs before caching or returning
+    if (data.user) {
+      data.user.pfpUrl = normalizePfpUrl(data.user.pfpUrl);
+      if (Array.isArray(data.user.friendsDisplayed)) {
+        for (const friend of data.user.friendsDisplayed) {
+          friend.pfpUrl = normalizePfpUrl(friend.pfpUrl);
+        }
+      }
+    }
 
     // Update leaderboard cache with fresh stats (for next sync)
     if (data.user) {
