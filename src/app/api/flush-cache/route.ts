@@ -4,6 +4,14 @@ import { getRedisClient } from '@/lib/redis';
 export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
+  // Auth required - this deletes the live leaderboard
+  if (process.env.NODE_ENV === 'production') {
+    const authHeader = request.headers.get('authorization');
+    if (authHeader !== `Bearer ${process.env.SYNC_SECRET}`) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+  }
+
   try {
     const redis = await getRedisClient();
 
@@ -77,7 +85,7 @@ export async function POST(request: NextRequest) {
         total: totalDeleted,
       },
       timestamp: new Date().toISOString(),
-      nextStep: 'Run POST /api/sync to rebuild the leaderboard with fresh data'
+      nextStep: 'Run POST /api/sync-background to rebuild the leaderboard with fresh data'
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';

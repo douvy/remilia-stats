@@ -5,7 +5,21 @@ import computeBeetlesLeaderboard from '@/lib/leaderboard-sync';
 export const maxDuration = 800;
 export const dynamic = 'force-dynamic';
 
-export async function POST(request: NextRequest) {
+async function runSync(request: NextRequest) {
+  // Only Vercel Cron or bearer token can trigger a sync in production.
+  // Unauthenticated hits used to trigger overlapping 13-min syncs -> rate limits.
+  if (process.env.NODE_ENV === 'production') {
+    const authHeader = request.headers.get('authorization');
+    const userAgent = request.headers.get('user-agent');
+
+    const isVercelCron = userAgent?.includes('vercel-cron/1.0');
+    const isValidBearer = authHeader === `Bearer ${process.env.SYNC_SECRET}`;
+
+    if (!isVercelCron && !isValidBearer) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+  }
+
   try {
     console.log('🚀 Starting sync with Fluid Compute (13min limit)...');
 
@@ -29,25 +43,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  // Allow Vercel Cron and manual browser access
-  try {
-    console.log('🚀 Starting sync with Fluid Compute (13min limit)...');
+  return runSync(request);
+}
 
-    const result = await computeBeetlesLeaderboard();
-
-    return NextResponse.json({
-      success: true,
-      message: 'Sync completed successfully',
-      usersProcessed: result.length,
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    console.error('❌ Sync failed:', message);
-
-    return NextResponse.json({
-      success: false,
-      error: message
-    }, { status: 500 });
-  }
+export async function POST(request: NextRequest) {
+  return runSync(request);
 }

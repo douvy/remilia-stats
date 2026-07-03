@@ -138,5 +138,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-
-// Manual sync moved to /api/sync endpoint

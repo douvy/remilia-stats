@@ -232,15 +232,21 @@ async function getAllUsers(redis: any): Promise<string[]> {
   const finalUsernames = Array.from(allUsernames);
   console.log(`✅ Found ${finalUsernames.length} unique users to process`);
 
-  // Safety check: Don't cache if we got suspiciously few users
+  // Safety check: if crawl came up short, fall back to last known good list
   if (finalUsernames.length < 6500) {
     console.error(`⚠️ Only found ${finalUsernames.length} users - friends API likely failed`);
-    console.error(`❌ Not caching user list to prevent corruption`);
-    throw new Error(`Failed to fetch user list: only ${finalUsernames.length} users found (expected 7000+)`);
+    const backup = await redis.get('user-list-backup');
+    if (backup) {
+      const backupList = typeof backup === 'string' ? JSON.parse(backup) : backup;
+      console.log(`✅ Falling back to backup user list (${backupList.length} users)`);
+      return backupList;
+    }
+    throw new Error(`Failed to fetch user list: only ${finalUsernames.length} users found (expected 7000+) and no backup available`);
   }
 
-  // Cache the user list for 24 hours
+  // Cache the user list for 24 hours + keep a permanent backup
   await redis.set('user-list-cache', JSON.stringify(finalUsernames), { ex: 86400 });
+  await redis.set('user-list-backup', JSON.stringify(finalUsernames));
   console.log('💾 Cached user list for 24 hours');
 
   return finalUsernames;
@@ -374,7 +380,8 @@ export default async function computeBeetlesLeaderboard(): Promise<LeaderboardUs
     // Store in Redis
     const payload = JSON.stringify(sortedUsers);
     console.log(`📦 Storing ${sortedUsers.length} users (${(payload.length / 1024 / 1024).toFixed(2)}MB)`);
-    await redis.set('beetles-leaderboard', payload, { ex: 86400 });
+    // No TTL - only ever overwritten by a successful sync. Stale data beats no data.
+    await redis.set('beetles-leaderboard', payload);
 
     // Store metadata
     const totalPokes = sortedUsers.reduce((sum, user) => sum + user.pokes, 0);
@@ -395,7 +402,7 @@ export default async function computeBeetlesLeaderboard(): Promise<LeaderboardUs
       }
     };
 
-    await redis.set('beetles-leaderboard-meta', JSON.stringify(metadata), { ex: 86400 });
+    await redis.set('beetles-leaderboard-meta', JSON.stringify(metadata));
 
     const duration = (Date.now() - metrics.startTime) / 1000;
     const successRate = (metrics.successfulFetches / metrics.totalUsers) * 100;
